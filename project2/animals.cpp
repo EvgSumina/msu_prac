@@ -14,10 +14,13 @@ public:
 	}
 
 	animal(const animal& other) {
-		if (name) delete [] name;
+		// ERROR: просто скопирована операция присваивания, а это не так - ОП исходит из того, что объект определен, а это не так
+		// поле name в конструкторе НЕ ОПРЕДЕЛЕНО! Значит скорее всего там "мусор", и вы этот мусор рассматриваете как указатель=> БАМ!
+		// это же конструктор!!! Он сам должен его определить!!!
+		//if (name) delete [] name;
 		name = new char[strlen(other.name) + 1];
 		strcpy(name, other.name);
-		if (sponsor) delete [] sponsor;
+		//if (sponsor) delete [] sponsor;
 		sponsor = new char[strlen(other.sponsor) + 1];
 		strcpy(sponsor, other.sponsor);
 	}
@@ -31,6 +34,9 @@ public:
 	}
 
 	const animal& operator= (const animal& other) {
+		// все верно, но вначале нужно проверить указатель!
+		if (this == &other)
+			return *this;
 		if (name) delete []name;
 		name = new char[strlen(other.name) + 1];
 		strcpy(name, other.name);
