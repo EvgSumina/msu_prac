@@ -14,13 +14,8 @@ public:
 	}
 
 	animal(const animal& other) {
-		// ERROR: просто скопирована операция присваивания, а это не так - ОП исходит из того, что объект определен, а это не так
-		// поле name в конструкторе НЕ ОПРЕДЕЛЕНО! Значит скорее всего там "мусор", и вы этот мусор рассматриваете как указатель=> БАМ!
-		// это же конструктор!!! Он сам должен его определить!!!
-		//if (name) delete [] name;
 		name = new char[strlen(other.name) + 1];
 		strcpy(name, other.name);
-		//if (sponsor) delete [] sponsor;
 		sponsor = new char[strlen(other.sponsor) + 1];
 		strcpy(sponsor, other.sponsor);
 	}
@@ -34,19 +29,20 @@ public:
 	}
 
 	const animal& operator= (const animal& other) {
-		// все верно, но вначале нужно проверить указатель!
-		if (this == &other)
+		if (this == &other) 
 			return *this;
-		if (name) delete []name;
+		if (name) 
+			delete []name;
 		name = new char[strlen(other.name) + 1];
 		strcpy(name, other.name);
-		if (sponsor) delete [] sponsor;
+		if (sponsor) 
+			delete [] sponsor;
 		sponsor = new char[strlen(other.sponsor) + 1];
 		strcpy(sponsor, other.sponsor);
 		return *this;
 	}
 
-	virtual void print() const = 0;
+	virtual void print(ostream& s) const = 0;
 
 	virtual ~animal() {
 		delete [] name;
@@ -69,6 +65,8 @@ public:
 	}
 
 	const mammal& operator= (const mammal& other) {
+		if (this == &other)
+			return *this;
 		animal::operator=(other);
 		tail = other.tail;
 		wool = other.wool;
@@ -83,10 +81,10 @@ public:
 		return wool;
 	}
 
-	virtual void print() const{
-		cout << "mammal: " << getname();
-		cout << " : " << getsponsor() << endl;
-		cout << "tail: " << tail << ": wool: " << wool << endl;
+	virtual void print(ostream& s) const{
+		s << "mammal: " << getname();
+		s << " : " << getsponsor() << endl;
+		s << "tail: " << tail << ": wool: " << wool << endl;
 	}
 
 	virtual ~mammal() {};
@@ -101,12 +99,13 @@ public:
 	}
 
 	bird(const bird& other): animal(other) {	
-		if (colour) delete [] colour;
 		colour = new char[strlen(other.colour) + 1];
 		strcpy(colour, other.colour);
 	}
 
 	const bird& operator= (const bird& other) {
+		if (this == &other) 
+			return *this;
 		animal::operator=(other);
 		if (colour) delete [] colour;
 		colour = new char[strlen(other.colour) + 1];
@@ -118,10 +117,10 @@ public:
 		return colour;
 	}
 
-	virtual void print() const{
-		cout << "bird: " << getname();
-		cout << " : " << getsponsor() << endl;
-		cout << "colour: " << colour << endl;
+	virtual void print(ostream& s) const{
+		s << "bird: " << getname();
+		s << " : " << getsponsor() << endl;
+		s << "colour: " << colour << endl;
 	}
 
 	virtual ~bird() {
@@ -129,8 +128,9 @@ public:
 	}
 };
 
-template <class T> ostream& operator<<(ostream& out, const T& an) {
-	an.print();
+ostream& operator<<(ostream& s, const animal& an) {
+	an.print(s);
+	return s;
 }
 
 int main() {
