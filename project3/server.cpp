@@ -165,7 +165,7 @@ public:
 					close(sockfd);
 					return 0;
 				}
-				while (len = read(filefd, &buf, BUFLEN))
+				while ((len = read(filefd, &buf, BUFLEN)) > 0)
 				{
 					if (send(sockfd, buf, len, 0) < 0) 
 					{
@@ -192,6 +192,7 @@ public:
 		{
 			cout << "error reading socket" << endl;
 		}
+		return 0;
 	}
 
 	int getsock()
