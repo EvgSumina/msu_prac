@@ -5,3 +5,6 @@ server: server.o
 
 server.o: server.cpp
 	g++ -g -Wall -c server.cpp
+
+clean:
+	rm -rf *.o server
