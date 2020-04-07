@@ -11,7 +11,7 @@ using namespace std;
 
 #define PORTNUM 8080
 #define BACKLOG 5
-#define BUFLEN 80
+#define BUFLEN 1024
 
 #define FNFSTR "404 Error File Not Found"
 #define BRSTR "Bad Request"
@@ -48,14 +48,17 @@ public:
 	Address() 
 	{
 		memset(&SockAddress, 0, sizeof(SockAddress));
+		SockAddress.sin_family = AF_INET;
+		SockAddress.sin_addr.s_addr = INADDR_ANY;
+		SockAddress.sin_port = htons(PORTNUM);
 	};
 
-	Address(int i) 
+	Address(unsigned short portNum) 
 	{
 		memset(&SockAddress, 0, sizeof(SockAddress));
 		SockAddress.sin_family = AF_INET;
 		SockAddress.sin_addr.s_addr = INADDR_ANY;
-		SockAddress.sin_port = htons(PORTNUM);
+		SockAddress.sin_port = htons(portNum);
 	};
 	
 	const struct sockaddr_in * getaddr() const
@@ -66,7 +69,7 @@ public:
 
 class Server: public Socket, public Address {
 public:
-	Server(): Socket(), Address(3) {};
+	Server(unsigned short portNum): Socket(), Address(portNum) {};
 	
 	void Bind() const
 	{
@@ -139,10 +142,12 @@ public:
 			else if (!p)
 			{
 				close(serv.getnum());
-				if ((len = recv(sockfd, buf, BUFLEN, 0)) < 0)
+				if ((len = recv(sockfd, buf, BUFLEN-1, 0)) < 0)
 				{
 					throw 12;
 				}
+				buf[BUFLEN] = 0;
+				fprintf(stderr, "Request=%s", buf);
 				if (strncmp(buf, "GET /", 5))
 				{
 					if (send(sockfd, BRSTR, strlen(BRSTR) + 1, 0) != strlen(BRSTR) + 1) 
@@ -206,7 +211,7 @@ public:
 
 int main(int argc, char** argv) {
 	char buf[BUFLEN];
-	Server serv1;
+	Server serv1(1234);
 	serv1.Bind();
 	serv1.Listen();
 	while(1)
