@@ -3,10 +3,12 @@
 #include <sys/stat.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <string>
 #include <fcntl.h>
 #include <unistd.h>
-#include <vector>
+#include <sys/un.h>
+#include <locale.h>
+#include <time.h>
+#include <signal.h>
 
 #include <iostream>
 using namespace std;
@@ -19,7 +21,19 @@ using namespace std;
 #define BRSTR "Bad Request"
 
 
-char buffer[] = "HTTP/1.1 200 Ok\nContent-Type: text/html";
+int Lok;
+char Allow[] = "Allow: GET, HEAD\n",
+ServerN[] = "Server: Model HTTP Server/0.1\n";
+char LastM[50];
+
+
+void SigHndlr(int s)
+{
+	cout << "End of the work" << endl;
+	shutdown(Lok, 0);
+	close(Lok);
+	signal(SIGINT,SIG_DFL); 
+}
 
 
 struct word
@@ -77,6 +91,11 @@ public:
 			}
 		i++;
 		}
+		if (!strcmp((head->next) -> str, "/\0"))
+		{
+			(head->next) -> str = new char[10];
+			sprintf((head->next) -> str,"/index.htm");
+		}
 	}
 	
 	void print()
@@ -94,6 +113,11 @@ public:
 		return head -> next;
 	}
 	
+	word* gethead()
+	{
+		return head;
+	}
+	
 	~List()
 	{			
 		while (head != NULL)
@@ -107,35 +131,184 @@ public:
 };
 
 
-char *OpRF(char *name)
+char *OpRF(char *name, unsigned long *len)
 {
 	char c;
 	FILE *fp;
-	unsigned int i = 0;
-	for (i = 0; i < strlen(name); i++) 
-		name[i] = name[i + 1];
-	if (name[0] == '\0') 
-		strcpy(name,"index.htm\0");
-	if ((fp = fopen(name, "r")) == NULL)
-	{
-		cout << "Reading error" << endl;
+	unsigned long int i = 0, l;
+	if ((fp = fopen(name, "rb")) == NULL)
 		return NULL;
-	}
 	fseek(fp, 0, SEEK_END);
-	int l;
 	l = ftell(fp);
-	char *str = new char[l + 1];
-	i = 0;
+	*len = l;
+	char *str = new char[l+1];
 	fclose(fp);
-	fp = fopen(name, "r");
-	while((c = fgetc(fp)) != EOF)
+	fp = fopen(name, "rb");
+	while(!feof(fp))
 	{
+		fread(&c, sizeof(char), 1, fp);
 		str[i] = c;
 		i++;
 	}
 	str[i] = '\0';
 	fclose(fp);
 	return str;
+}
+
+char *GetEx(char *str)
+{
+	int n = strlen(str);
+	int i, j, k = 0;
+
+	if (strchr(str,'.') != NULL)
+	{
+		for (i = (strlen(str) - 1); i >= 0; i--)
+			if (str[i] == '.')
+			{
+				j = i;
+				break;
+			}
+		char *ex = new char[n - j];
+		for (i = j + 1; i <= n; i++)
+		{
+			ex[k] = str[i];
+			k++;
+		}
+		return ex;
+	}
+	else return NULL;
+}
+
+
+
+char *HeadS(List *head, int *CODE)
+{
+	struct tm *Date, *Last;
+	long timeT, timeL;
+	char DateS[50], LastS[60];
+	unsigned int i = 0;
+	char *name = (head -> getnext()) -> str;
+	char *exs;
+	char *type = new char[26];
+	char *http;
+	struct stat stbuf;
+	char cod[5];
+	char comm[22];
+
+	for (i = 0; i < strlen(name); i++) 
+		name[i] = name[i + 1];
+
+	if (strcmp("GET\0", (head -> gethead()) -> str) && strcmp("HEAD\0", (head -> gethead()) -> str))
+	{
+		strcpy(cod, "501\0");
+		*CODE = 501;
+		strcpy(comm, "Service Unavailable\0");
+	}
+	else if (strchr(name,'?') != NULL)
+	{
+		strcpy(cod, "400\0");
+		*CODE = 400;
+		strcpy(comm, "Syntax error\0");
+	}
+	else if (stat(name, &stbuf) == -1)
+	{
+		strcpy(cod,"404\0");
+		*CODE = 404;
+		strcpy(comm,"Not found file\0");
+	}
+	else if ((((stbuf.st_mode) >> 2) | 1) == 0)
+	{
+		strcpy(cod, "403\0");
+		*CODE = 403;
+		strcpy(comm,"Forbidden\0");
+	}
+	else
+	{
+		strcpy(cod, "200\0");
+		*CODE = 200;
+		strcpy(comm, "Ok\0");
+	}
+	if (!strcmp((head -> gethead()) -> str, "GET\0"))
+	{
+		sprintf(type, "text/html");
+		if (*CODE == 200)
+		{
+			exs = GetEx(name);
+			if (!strcmp(exs, "jpg\0"))
+				sprintf(type, "image/jpeg");
+			if (!strcmp(exs, "gif\0"))
+				sprintf(type, "image/gif");
+			if (!strcmp(exs, "png\0"))
+				sprintf(type, "image/png");
+			stat(name, &stbuf);
+			timeL = stbuf.st_mtime;
+			Last = gmtime(&timeL);
+			strftime(LastS, 50, "Last-modified: %a, %d %b %Y %H:%M: %S GMT", Last);
+		}
+	}
+	
+	time(&timeT);
+	Date = gmtime(&timeT);
+	strftime(DateS, 50, "Date: %a, %d %b %Y %H:%M: %S GMT", Date);
+	http = new char[strlen(cod)+40+strlen(comm)+strlen(DateS)+strlen(type)+strlen(LastS)+strlen(ServerN)+strlen(Allow)];
+	
+	if (*CODE == 501) sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n%s\n", cod, comm, DateS, type, Allow);
+	if (*CODE == 200) sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n%s\n", cod, comm, DateS, type, LastS);
+	else sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n", cod, comm, DateS, type);
+	return http;
+}
+
+
+char *GetBody(List *head, int CODE, char *headM, unsigned long *length)
+{
+	char *str;
+	unsigned long len;
+
+	if (CODE == 200)
+	{
+		str = OpRF( (head -> getnext()) -> str, &len );
+		*length = len;
+	}
+	if (CODE == 404)
+	{
+		str = new char[strlen( (head -> getnext()) -> str ) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Error 404\n Didn't find: %s</H1>\n</HTML>", (head -> getnext()) -> str);
+		*length = strlen(str) * sizeof(char);
+	}
+	if (CODE == 400){
+		str = new char[strlen((head -> getnext()) -> str) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Syntax error!</H1>\n</HTML>");
+		*length = strlen(str) * sizeof(char);
+	}
+	if (CODE == 403){
+		str = new char[strlen((head -> getnext()) -> str) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Bad request You haven't permission!</H1>\n</HTML>");
+		*length = strlen(str) * sizeof(char);
+	}
+	if (CODE == 500){
+		str = new char[strlen((head -> getnext()) -> str) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Forbidden You haven't permission!</H1>\n</HTML>");
+		*length = strlen(str) * sizeof(char);
+	}
+	if (CODE == 501){
+		str = new char[strlen((head -> getnext()) -> str) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Not Implemented.</H1>\n</HTML>");
+		*length = strlen(str) * sizeof(char);
+	}
+	if (CODE == 503){
+		str = new char[strlen((head -> getnext()) -> str) + 150];
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Service Unavailable.</H1>\n</HTML>");
+		*length = strlen(str) * sizeof(char);
+	}
+	return str;
+}
+
+
+char *AddCL(char *str, unsigned long len)
+{
+	char *str1 = new char[35+strlen(ServerN)+strlen(str)];
+	sprintf(str1, "%sContent-Length: %li\nServer: Model HTTP Server/0.1\n\n", str, len);
+	return str1;
 }
 
 
@@ -228,8 +401,10 @@ public:
 
 	int Request(char* buf, Server serv)
 	{
-		int len, p;
-		char *st;
+		int p, CODE;
+		long unsigned int len;
+		char *st, *HEAD;
+		Lok = sockfd;
 		if ((p = fork()) == -1)
 		{
 			//cout << "can't make a process" << endl;
@@ -248,12 +423,15 @@ public:
 			cout << buf << endl;
 			List newl;
 			newl.CreatList(buf, strlen(buf));
-			st = OpRF((newl.getnext()) -> str);
-			cout << "-------------------------------------------------" << endl;
-			send(sockfd,buffer,sizeof(buffer),0);
-			if (st!=NULL)
-				send(sockfd,st,strlen(st),0);
+			HEAD = HeadS(&newl, &CODE);
+			st = GetBody(&newl, CODE, HEAD, &len);
+			HEAD = AddCL(HEAD, len);
+			cout << "Send:\n" << HEAD;
+			send(sockfd, HEAD, strlen(HEAD) * sizeof(char), 0);
+			if (!strcmp(newl.gethead() -> str,"GET\0"))
+			send(sockfd, st, strlen(st) * sizeof(char), 0);
 			cout << "Answer was sent\n";
+			cout << "\n------------------------------------------------------------\n";
 			shutdown(sockfd, 0);
 			close(sockfd);
 			return 0; 
@@ -277,6 +455,7 @@ int main(int argc, char** argv)
 		cout << "I need PortNumber" << endl;
 		return 0;
 	}
+	signal(SIGINT,SigHndlr);
 	int portnum = atoi(argv[1]);
 	char *buf = new char[BUFLEN];
 	Server serv1(portnum);
