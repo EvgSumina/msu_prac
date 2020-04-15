@@ -261,7 +261,7 @@ char *HeadS(List *head, int *CODE)
 	Date = gmtime(&timeT);
 	strftime(DateS, 50, "Date: %a, %d %b %Y %H:%M: %S GMT", Date);
 	http = new char[strlen(cod)+40+strlen(comm)+strlen(DateS)+strlen(type)+strlen(LastS)+strlen(ServerN)+strlen(Allow)];
-	
+	if (*CODE == 404 || *CODE == 400 || *CODE == 403 || *CODE == 500 ||*CODE == 501 || *CODE == 503) sprintf(type, "text/html");
 	if (*CODE == 501) sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n%s\n", cod, comm, DateS, type, Allow);
 	if (*CODE == 200) sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n%s\n", cod, comm, DateS, type, LastS);
 	else sprintf(http, "HTTP/1.1 %s %s\nMIME-version: 1.1\n%s\nContent-Type: %s\n", cod, comm, DateS, type);
