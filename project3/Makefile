@@ -9,7 +9,7 @@ server.o: server.cpp
 	g++ -g $(OPTIONS) -c server.cpp
 
 run: server
-	./server	
+	./server 2233	
 
 clean:
 	rm -rf *.o server

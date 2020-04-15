@@ -275,7 +275,7 @@ char *GetBody(List *head, int CODE, char *headM, unsigned long *length)
 	if (CODE == 404)
 	{
 		str = new char[strlen( (head -> getnext()) -> str ) + 150];
-		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Error 404\n Didn't find: %s</H1>\n</HTML>", (head -> getnext()) -> str);
+		sprintf(str, "<HTML><HEAD><TITLE>ModalServer 1.1b</TITLE></HEAD>\n<BODY>\n<H1>Error 404\n Can't find: %s</H1>\n</HTML>", (head -> getnext()) -> str);
 		*length = strlen(str) * sizeof(char);
 	}
 	if (CODE == 400){
