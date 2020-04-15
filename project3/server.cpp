@@ -97,7 +97,7 @@ public:
 		if (!strcmp((head->next) -> str, "/\0"))
 		{
 			(head->next) -> str = new char[10];
-			sprintf((head->next) -> str,"/index.htm");
+			sprintf((head->next) -> str,"/index.html");
 		}
 	}
 	
@@ -179,7 +179,12 @@ char *GetEx(char *str)
 		}
 		return ex;
 	}
-	else return NULL;
+	else 
+	{
+		char *ex = new char[1];
+		ex[0] = '\0';
+		return ex;
+	};
 }
 
 
@@ -233,10 +238,12 @@ char *HeadS(List *head, int *CODE)
 	}
 	if (!strcmp((head -> gethead()) -> str, "GET\0"))
 	{
-		sprintf(type, "text/html");
+		exs = GetEx(name);
+		if (!strcmp(exs, "html\0"))
+			sprintf(type, "text/html");
+		else sprintf(type, "text/plain");
 		if (*CODE == 200)
 		{
-			exs = GetEx(name);
 			if (!strcmp(exs, "jpg\0"))
 				sprintf(type, "image/jpeg");
 			if (!strcmp(exs, "gif\0"))
@@ -400,7 +407,10 @@ public:
 		cout << "Send:\n" << HEAD;
 		send(sockfd, HEAD, strlen(HEAD) * sizeof(char), 0);
 		if (!strcmp(newl.gethead() -> str,"GET\0"))
-		send(sockfd, st, strlen(st) * sizeof(char), 0);
+		{
+			cerr << st << endl;
+			send(sockfd, st, strlen(st) * sizeof(char), 0);
+		}
 		cout << "Answer was sent\n";
 		cout << "\n--------------------------------------------------------\n";
 		shutdown(sockfd, 0);
