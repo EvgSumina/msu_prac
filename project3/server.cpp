@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
@@ -29,9 +30,11 @@ char LastM[50];
 
 void SigHndlr(int s)
 {
+	int status;
 	cout << "End of the work" << endl;
 	shutdown(Lok, 0);
 	close(Lok);
+	while (wait(&status) != -1);
 	signal(SIGINT,SIG_DFL); 
 }
 
@@ -360,6 +363,56 @@ public:
 	}	
 };
 
+
+class Client: public Address {
+	unsigned int len;
+	int sockfd;
+public:
+	Client(): Address() 
+	{
+		len = sizeof(*( getaddr() ));
+	}
+
+	void Accept(int servnum)
+	{
+		sockfd = accept (servnum, (struct sockaddr*) getaddr(), &len);
+	}
+
+	void Request(char* buf)
+	{
+		int CODE;
+		long unsigned int len;
+		char *st, *HEAD;
+		Lok = sockfd;
+		if ((len = recv(sockfd, buf, BUFLEN-1, 0)) < 0)
+		{
+			cout << "error reading socket" << endl;
+			return;
+		}
+		buf[BUFLEN] = 0;
+		cout << "Server request:" << endl;
+		cout << buf << endl;
+		List newl;
+		newl.CreatList(buf, strlen(buf));
+		HEAD = HeadS(&newl, &CODE);
+		st = GetBody(&newl, CODE, HEAD, &len);
+		HEAD = AddCL(HEAD, len);
+		cout << "Send:\n" << HEAD;
+		send(sockfd, HEAD, strlen(HEAD) * sizeof(char), 0);
+		if (!strcmp(newl.gethead() -> str,"GET\0"))
+		send(sockfd, st, strlen(st) * sizeof(char), 0);
+		cout << "Answer was sent\n";
+		cout << "\n--------------------------------------------------------\n";
+		shutdown(sockfd, 0);
+		close(sockfd);
+	}
+
+	int getsock()
+	{
+		return sockfd;
+	}
+}; 
+
 class Server: public Socket, public Address {
 public:
 	Server(unsigned short portNum): Socket(), Address(portNum) {};
@@ -383,69 +436,33 @@ public:
 		else 
 			cout << "Now I'm listening" << endl;
 	};
-};
-
-class Client: public Address {
-	unsigned int len;
-	int sockfd;
-public:
-	Client(): Address() 
+	
+	int Get(char* buf)
 	{
-		len = sizeof(*( getaddr() ));
-	}
-
-	void Accept(Server serv)
-	{
-		sockfd = accept (serv.getnum(), (struct sockaddr*) getaddr(), &len);
-	}
-
-	int Request(char* buf, Server serv)
-	{
-		int p, CODE;
-		long unsigned int len;
-		char *st, *HEAD;
-		Lok = sockfd;
+		int p;
+		Client newclient;
+		newclient.Accept(getnum());
 		if ((p = fork()) == -1)
 		{
-			//cout << "can't make a process" << endl;
+			cout << "can't make a process" << endl;
 			return 0;
 		}
 		else if (!p)
 		{
-			close(serv.getnum());
-			if ((len = recv(sockfd, buf, BUFLEN-1, 0)) < 0)
-			{
-				//cout << "error reading socket" << endl;
-				return 0;
-			}
-			buf[BUFLEN] = 0;
-			cout << "Server request:" << endl;
-			cout << buf << endl;
-			List newl;
-			newl.CreatList(buf, strlen(buf));
-			HEAD = HeadS(&newl, &CODE);
-			st = GetBody(&newl, CODE, HEAD, &len);
-			HEAD = AddCL(HEAD, len);
-			cout << "Send:\n" << HEAD;
-			send(sockfd, HEAD, strlen(HEAD) * sizeof(char), 0);
-			if (!strcmp(newl.gethead() -> str,"GET\0"))
-			send(sockfd, st, strlen(st) * sizeof(char), 0);
-			cout << "Answer was sent\n";
-			cout << "\n------------------------------------------------------------\n";
-			shutdown(sockfd, 0);
-			close(sockfd);
-			return 0; 
+			close(getnum());
+			newclient.Request(buf);
+			exit(0);  
 		}
-		close(sockfd);
+		close(newclient.getsock());
 		return 0;
 	}
 
-	int getsock()
+	~Server()
 	{
-		return sockfd;
+		close(getnum());
 	}
+};
 
-}; 
 
 
 int main(int argc, char** argv) 
@@ -456,16 +473,17 @@ int main(int argc, char** argv)
 		return 0;
 	}
 	signal(SIGINT,SigHndlr);
-	int portnum = atoi(argv[1]);
+	int portnum = atoi(argv[1]); 
+	int status;
 	char *buf = new char[BUFLEN];
 	Server serv1(portnum);
 	serv1.Bind();
 	serv1.Listen();
 	while(1)
 	{
-		Client newclient;
-		newclient.Accept(serv1);
-		newclient.Request(buf, serv1);
+		serv1.Get(buf);
 	}
+	while (wait(&status) != -1);
+	delete []buf;
 	return 0;
 }
