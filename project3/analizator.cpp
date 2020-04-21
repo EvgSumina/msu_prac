@@ -138,7 +138,7 @@ int put (const string & buf) {
 
 class Scanner {
 	FILE *fp;
-	char c;
+	int c;
 	int look (const string& buf, const char **list) 
 	{
 		int i = 0;
@@ -229,7 +229,7 @@ Lex Scanner::get_lex ()
 				{
 				    CS = QUOTE;
 				}
-				else if ( c == '@') 
+				else if ( c == EOF ) 
 					return Lex (LEX_FIN);
 				else 
 				{ 
@@ -295,14 +295,14 @@ Lex Scanner::get_lex ()
 				{
 				    CS = COM2;
 				}
-				else if (c == '@') throw c;
+				else if ( c == EOF ) throw c;
 				break;
 			case COM2:
 			    if (c == '/')
 			    {
 			        CS = H;
 			    }
-			    else if (c == '@')
+			    else if ( c == EOF )
 			    {
 			        throw c;
 			    }
@@ -313,7 +313,7 @@ Lex Scanner::get_lex ()
 			    {
 			        CS = H;
 			    }
-			    else if (c == '@')
+			    else if ( c == EOF )
 			    {
 			        throw c;
 			    }
