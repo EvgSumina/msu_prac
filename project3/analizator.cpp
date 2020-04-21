@@ -172,7 +172,7 @@ Scanner::TD [] = { "@", "&", "&&", ";", ",", ":", "=", "(", ")", "==", "<", ">",
 
 Lex Scanner::get_lex () 
 { 
-	enum state { H, IDENT, NUMB, SLASH, ALE, ALE2, PLUS, MINUS, AMP, PIPE, QUOTE, COM, COM2, COM3, NEQ };
+	enum state { H, IDENT, NUMB, SLASH, ALE, ALE2, PLUS, MINUS, AMP, PIPE, QUOTE, COM, COM2, COM3 };
 	state CS = H; 
 	string buf; 
 	int d, j;
@@ -193,7 +193,12 @@ Lex Scanner::get_lex ()
 				}
 				else if ( c == '/' ) 
 				{ 
+					buf.push_back(c);
 					CS = SLASH; 
+				}
+				else if ( c == '#' ) 
+				{ 
+					CS = COM3; 
 				}
 				else if ( c == '!' || c == '=') 
 				{
@@ -247,7 +252,7 @@ Lex Scanner::get_lex ()
 				else 
 				{ 
 					ungetc(c, fp);
-					if (j = look (buf, TW))
+					if ((j = look (buf, TW)))
 						return Lex ((type_of_lex)j , j);
 					else 
 					{
@@ -312,10 +317,6 @@ Lex Scanner::get_lex ()
 			    if (c == '\n')
 			    {
 			        CS = H;
-			    }
-			    else if ( c == EOF )
-			    {
-			        throw c;
 			    }
 			    break;
 			case ALE:
@@ -405,7 +406,7 @@ Lex Scanner::get_lex ()
 	            if (c=='"')
 		        {
 		          string st = "";
-		          for (int i = 0; i < buf.size(); i++)
+		          for (unsigned int i = 0; i < buf.size(); i++)
 		          {
 	                st += buf[i];
 		          }
@@ -471,6 +472,7 @@ int main () {
         cout << "get_lex() error" << endl;
     }
 }
+
 
 
 
