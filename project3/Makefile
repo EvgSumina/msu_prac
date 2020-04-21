@@ -1,6 +1,11 @@
 OPTIONS = -Wall -Werror
 
-all: server
+all: server analizator
+
+analizator:  analizator.o
+
+analizator.o: analizator.cpp
+	g++ -g $(OPTIONS) -c analizator.cpp
 
 server: server.o 
 	g++ server.o -o server
@@ -9,7 +14,10 @@ server.o: server.cpp
 	g++ -g $(OPTIONS) -c server.cpp
 
 run: server
-	./server 2233	
+	./server 2233
+
+an: analizator
+	./analizator
 
 clean:
 	rm -rf *.o server

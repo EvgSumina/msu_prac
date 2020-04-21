@@ -1,3 +1,11 @@
+#     comment until eoln
 c = "helloworld"
-var y;
+var y; /*   comment */
+
 i = 2 + 3
+true
+false
++ * / -
+
+Responce . write
+
