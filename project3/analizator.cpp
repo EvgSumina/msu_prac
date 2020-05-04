@@ -495,8 +495,8 @@ class Parser
     void E1();
     void T();
     void F();
-	void FOR_PARAMETERS();
-    void dec(type_of_lex type);
+    void FOR_PARAMETERS();
+    void dec(type_of_lex type, int i);
     void check_id();
     void check_op();
     void check_not();
@@ -704,6 +704,8 @@ void Parser::S()
 			{
 				gl();
 			}
+			else if (c_type == LEX_FIN)
+			    return;
 			else
 				throw curr_lex;
         }
@@ -711,17 +713,19 @@ void Parser::S()
 		{
 			poliz.push_back(Lex(POLIZ_RINC));
 			gl();
-			if (c_type != LEX_SEMICOLON)
+			if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
 				throw curr_lex;
-			gl();
+			else if (c_type == LEX_SEMICOLON)
+			    gl();
 		}
 		else if (c_type == LEX_DEC)
 		{
 			poliz.push_back(Lex(POLIZ_RDEC));
 			gl();
-			if (c_type != LEX_SEMICOLON)
+			if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
 				throw curr_lex;
-			gl();
+			else if (c_type == LEX_SEMICOLON)
+			    gl();
 		}
         else
             throw curr_lex;
@@ -803,8 +807,26 @@ void Parser::D()
         throw curr_lex;
     else
     {
-        st_int.push(c_val);
+        st_int.push ( c_val );
+        int l_v_index = c_val;
         gl();
+        
+        if (c_type == LEX_ASSIGN)
+        {
+            poliz.push_back(Lex(POLIZ_ADDRESS, l_v_index));
+            type_of_lex i;
+            type_of_lex tmp = c_type;
+            gl();
+            E();
+            from_st(st_lex, i);
+			dec(i, l_v_index);
+            poliz.push_back(Lex(tmp));
+        }
+        else
+        {
+            dec(LEX_UNDEFINED, l_v_index);
+        } 
+        
         while (c_type == LEX_COMMA)
         {
             gl();
@@ -812,17 +834,32 @@ void Parser::D()
                 throw curr_lex;
             else
             {
-                st_int.push(c_val);
+                st_int.push ( c_val );
+                int l_v_index = c_val;
                 gl();
+                
+                if (c_type == LEX_ASSIGN)
+                {
+                    poliz.push_back(Lex(POLIZ_ADDRESS, l_v_index));
+                    type_of_lex i;
+                    type_of_lex tmp = c_type;
+                    gl();
+                    E();
+                    from_st(st_lex, i);
+			        dec(i, l_v_index);
+                    poliz.push_back(Lex(tmp));
+                }
+                else
+                {
+                    dec(LEX_UNDEFINED, l_v_index);
+                } 
             }
         }
-        if (c_type != LEX_SEMICOLON)
+        if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
             throw curr_lex;
-        else
+        else if (c_type == LEX_SEMICOLON)
         {
-            dec(LEX_UNDEFINED);
             gl();
-			S();
         }
     }
 }
@@ -969,19 +1006,14 @@ void Parser::FOR_PARAMETERS()
 }
 ////////////////////////////////////////////////////////////////
 
-void Parser::dec ( type_of_lex type ) 
+void Parser::dec ( type_of_lex type, int i ) 
 {
-    int i;
-    while ( !st_int.empty()) 
+    if ( TID[i].get_declare() ) 
+        throw "twice";
+    else 
     {
-        from_st(st_int, i);
-        if ( TID[i].get_declare() ) 
-            throw "twice";
-        else 
-        {
-            TID[i].put_declare();
-            TID[i].put_type(type);
-        }
+        TID[i].put_declare();
+        TID[i].put_type(type);
     }
 }
  
@@ -1029,7 +1061,10 @@ void Parser::eq_type (type_of_lex & t1)
     	t1 = t2;
     }
     else if ( t1 != t2)
+    {
+        cout << t1 << ' ' << t2 << endl;
         throw "wrong types are in =";
+    }
 }
  
 void Parser::eq_bool () 
@@ -1041,10 +1076,24 @@ void Parser::eq_bool ()
 ////////////////////////////////////////////////////////////////
 
 int main () {
-    Parser pars("program.txt");
-    pars.analyze();
+    try
+    {
+        Parser pars("program.txt");
+        pars.analyze();
+    }
+    
+    catch (const char* str)
+    {
+        cout << str << endl;
+        return 1;
+    }
+    
+    catch (Lex l)
+    {
+        cout << "error\n";
+        cout << l << endl;
+        return 1;
+    }
+    
+    return 0;
 }
-
-
-
-

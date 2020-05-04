@@ -1,9 +1,8 @@
 analyze -> S 
-S -> if (E) B | if (E) B else B | while (E) B | for (FOR_PARAMETERS; E; FOR_PARAMETERS) | do B while (E); | LEX_ID [=|-=|+=|*=|/=|%=] E | LEX_ID ++ | LEX_ID -- |
-continue; | break; | var D | LEX_FIN <return;> | LEX_END <return;> | [++ | --] E  | S
+S -> if (E) B | if (E) B else B | while (E) B | for (FOR_PARAMETERS; E; FOR_PARAMETERS) | do B while (E); | LEX_ID [=|-=|+=|*=|/=|%=] E | LEX_ID ++ | LEX_ID -- | continue; | break; | var D | LEX_FIN <return;> | LEX_END <return;> | [++ | --] E  | S
 E -> [++, --] F | E1 [==|<|>|<=|>=|!=] E1 | E1
 E1 -> T [+|-||] T | T
 T -> F [*|/|&|%] F | F
 F -> LEX_ID | LEX_NUMBER | true | false | LEX_STRING | not F | (E) 
-D -> LEX_ID {, LEX_ID} | S 
+D -> LEX_ID {, LEX_ID} [NUMBER | BOOL | STRING]
 FOR_PARAMS -> LEX_ID [=|-=|+=|*=|/=|%=] E | LEX_ID ++ | LEX_ID --
