@@ -1,11 +1,12 @@
-#     comment until eoln
-c = "helloworld"
-var y; /*   comment */
+var a;
+var b;
+b = 3;
+a = 2 + b;
 
-i = 2 + 3
-true
-false
-+ * / -
+for (a = 1; a < 3; a++)
+{
+b++;
+continue;
+}
 
-Responce . write
 
