@@ -495,7 +495,7 @@ class Parser
     void E1();
     void T();
     void F();
-	void FOR_PARAMS();
+	void FOR_PARAMETERS();
     void dec(type_of_lex type);
     void check_id();
     void check_op();
@@ -646,7 +646,7 @@ void Parser::S()
         if (c_type == LEX_LPAREN) 
 		{
             gl();
-            FOR_PARAMS();
+            FOR_PARAMETERS();
 			pl0 = poliz.size();
 			if (c_type == LEX_SEMICOLON) {
                 gl();
@@ -659,7 +659,7 @@ void Parser::S()
 				labels_for_con.push(poliz.size());
 				if (c_type == LEX_SEMICOLON) {
 					gl();
-					FOR_PARAMS();
+					FOR_PARAMETERS();
 					poliz.push_back(Lex(POLIZ_LABEL, pl0));
 					poliz.push_back(Lex(POLIZ_GO));
 					poliz[pl1-2] = Lex(POLIZ_LABEL, poliz.size());
@@ -930,7 +930,7 @@ void Parser::F()
         throw curr_lex;
 }
 
-void Parser::FOR_PARAMS()
+void Parser::FOR_PARAMETERS()
 {
 	int l_v_index = curr_lex.get_value();
 	type_of_lex new_val;
