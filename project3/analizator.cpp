@@ -11,52 +11,52 @@ using namespace std;
 
 enum type_of_lex 
 {
-	LEX_NULL,  //0
-	LEX_BOOLEAN, LEX_DO, LEX_ELSE, LEX_IF, LEX_FALSE, LEX_NUMBER, LEX_STRING, LEX_TRUE, LEX_VAR, LEX_WHILE, LEX_BREAK, LEX_CASE, LEX_CONTINUE, LEX_GOTO, LEX_FOR, LEX_FUNCTION, LEX_IN, LEX_INSTANCE, LEX_NAN, LEX_NILL, LEX_RETURN, LEX_TYPEOF, LEX_VOID, LEX_WITH, LEX_OBJECT, LEX_UNDEFINED,
-	LEX_FIN, //27
-	LEX_AMP, LEX_DAMP, LEX_SEMICOLON, LEX_COMMA, LEX_COLON, LEX_ASSIGN, LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GRT, LEX_PLUS, LEX_PLEQ, /*40 */ LEX_MINUS, LEX_MINEQ, LEX_PIPE, LEX_DPIPE, LEX_REM, LEX_REMEQ, LEX_SLASH, LEX_SLEQ, LEX_TIMES, LEX_TIMESEQ, LEX_SLASHTIMES, LEX_TIMESLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ, LEX_INC, LEX_DEC, LEX_POINT, LEX_LBRACK, LEX_RBRACK, LEX_STEQ, LEX_STNEQ, LEX_BEGIN, LEX_END, LEX_NOT, LEX_DSLASH,
-	LEX_CONSTR, //67
-  	LEX_ID, 
-  	POLIZ_LABEL,
-  	POLIZ_ADDRESS, 
-  	POLIZ_GO, 
-	POLIZ_FGO,
-	POLIZ_LINC,
-	POLIZ_RINC,
-	POLIZ_LDEC,
-	POLIZ_RDEC,
+    LEX_NULL,  //0
+    LEX_BOOLEAN, LEX_DO, LEX_ELSE, LEX_IF, LEX_FALSE, LEX_NUMBER, LEX_STRING, LEX_TRUE, LEX_VAR, LEX_WHILE, LEX_BREAK, LEX_CASE, LEX_CONTINUE, LEX_GOTO, LEX_FOR, LEX_FUNCTION, LEX_IN, LEX_INSTANCE, LEX_NAN, LEX_NILL, LEX_RETURN, LEX_TYPEOF, LEX_VOID, LEX_WITH, LEX_OBJECT, LEX_UNDEFINED,
+    LEX_FIN, //27
+    LEX_AMP, LEX_DAMP, LEX_SEMICOLON, LEX_COMMA, LEX_COLON, LEX_ASSIGN, LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GRT, LEX_PLUS, LEX_PLEQ, /*40 */ LEX_MINUS, LEX_MINEQ, LEX_PIPE, LEX_DPIPE, LEX_REM, LEX_REMEQ, LEX_SLASH, LEX_SLEQ, LEX_TIMES, LEX_TIMESEQ, LEX_SLASHTIMES, LEX_TIMESLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ, LEX_INC, LEX_DEC, LEX_POINT, LEX_LBRACK, LEX_RBRACK, LEX_STEQ, LEX_STNEQ, LEX_BEGIN, LEX_END, LEX_NOT, LEX_DSLASH,
+    LEX_CONSTR, //67
+    LEX_ID, 
+    POLIZ_LABEL,
+    POLIZ_ADDRESS, 
+    POLIZ_GO, 
+    POLIZ_FGO,
+    POLIZ_LINC,
+    POLIZ_RINC,
+    POLIZ_LDEC,
+    POLIZ_RDEC,
 }; 
 
 /////////////////////////  Класс Lex  //////////////////////////
 
 class Lex {
-	type_of_lex t_lex;
-	int v_lex;
-	string s_lex;
+    type_of_lex t_lex;
+    int v_lex;
+    string s_lex;
 public:
-	Lex ( type_of_lex t = LEX_UNDEFINED, int v = 0, string s = " " ) 
-	{
-		t_lex = t;
-		v_lex = v;
-		s_lex = s;
-	}
+    Lex ( type_of_lex t = LEX_UNDEFINED, int v = 0, string s = " " ) 
+    {
+        t_lex = t;
+        v_lex = v;
+        s_lex = s;
+    }
 
-	type_of_lex get_type () const 
-	{
-		return t_lex;
-	}
+    type_of_lex get_type () const 
+    {
+        return t_lex;
+    }
 
-	int get_value () const 
-	{
-		return v_lex;
-	}
-	
-	string get_string () const 
-	{
-		return s_lex;
-	}
+    int get_value () const 
+    {
+        return v_lex;
+    }
+    
+    string get_string () const 
+    {
+        return s_lex;
+    }
 
-	friend ostream & operator << ( ostream & s, Lex l ); 
+    friend ostream & operator << ( ostream & s, Lex l ); 
 };
 
 
@@ -64,74 +64,74 @@ public:
 
 
 class Ident {
-	string name;
-	bool declare;
-	type_of_lex type;
-	bool assign;
-	int value;
+    string name;
+    bool declare;
+    type_of_lex type;
+    bool assign;
+    int value;
 public:
-	Ident () 
-	{ 
-		declare = false; 
-		assign = false; 
-	}
-	
-	Ident ( const string n ) 
-	{
-		name = n; 
-		declare = false; 
-		assign = false; 
-	}
-	
-	bool operator== (const string& s) const 
-	{
-		return name == s; 
-	}
-	
-	string get_name () 
-	{ 
-		return name; 
-	} 
-	
-	bool get_declare () 
-	{ 
-		return declare; 
-	}
-	
-	void put_declare () 
-	{ 
-		declare = true; 
-	}
-	
-	type_of_lex get_type () 
-	{ 
-		return type; 
-	}
-	
-	void put_type ( type_of_lex t ) 
-	{ 
-		type = t; 
-	}
-	
-	bool get_assign () 
-	{ 
-		return assign; 
-	}
-	
-	void put_assign () 
-	{ 
-		assign = true; 
-	}
-	
-	int get_value () 
-	{ 
-		return value; 
-	}
-	
-	void put_value ( int v ) 
-	{ 
-		value = v; 
-	}
+    Ident () 
+    { 
+        declare = false; 
+        assign = false; 
+    }
+    
+    Ident ( const string n ) 
+    {
+        name = n; 
+        declare = false; 
+        assign = false; 
+    }
+    
+    bool operator== (const string& s) const 
+    {
+        return name == s; 
+    }
+    
+    string get_name () 
+    { 
+        return name; 
+    } 
+    
+    bool get_declare () 
+    { 
+        return declare; 
+    }
+    
+    void put_declare () 
+    { 
+        declare = true; 
+    }
+    
+    type_of_lex get_type () 
+    { 
+        return type; 
+    }
+    
+    void put_type ( type_of_lex t ) 
+    { 
+        type = t; 
+    }
+    
+    bool get_assign () 
+    { 
+        return assign; 
+    }
+    
+    void put_assign () 
+    { 
+        assign = true; 
+    }
+    
+    int get_value () 
+    { 
+        return value; 
+    }
+    
+    void put_value ( int v ) 
+    { 
+        value = v; 
+    }
 };
 
 //////////////////////  TID  ///////////////////////
@@ -139,44 +139,44 @@ public:
 vector <Ident> TID;
 
 int put (const string & buf) {
-	vector <Ident>::iterator k;
-	if ( (k = find (TID.begin(), TID.end(), buf)) != TID.end() ) 
-		return k - TID.begin();
-	TID.push_back ( Ident (buf) );
-	return TID.size() - 1;
+    vector <Ident>::iterator k;
+    if ( (k = find (TID.begin(), TID.end(), buf)) != TID.end() ) 
+        return k - TID.begin();
+    TID.push_back ( Ident (buf) );
+    return TID.size() - 1;
 }
 
 /////////////////////////////////////////////////////////////////
 
 class Scanner {
-	FILE *fp;
-	int c;
-	int look (const string& buf, const char **list) 
-	{
-		int i = 0;
-		while (list [i]) 
-		{
-			if ( buf == list [i] )
-				return i;
-			i++; 
-		}
-		return 0; 
-	}
-	void gc () 
-	{ 
-		c = fgetc (fp); 
-	}
+    FILE *fp;
+    int c;
+    int look (const string& buf, const char **list) 
+    {
+        int i = 0;
+        while (list [i]) 
+        {
+            if ( buf == list [i] )
+                return i;
+            i++; 
+        }
+        return 0; 
+    }
+    void gc () 
+    { 
+        c = fgetc (fp); 
+    }
 public:
-	static const char *TW [ ], *TD [ ];
-	Scanner (const char *program) 
-	{
-		fp = fopen ( program, "r" );
-	}
-	Lex get_lex ();
+    static const char *TW [ ], *TD [ ];
+    Scanner (const char *program) 
+    {
+        fp = fopen ( program, "r" );
+    }
+    Lex get_lex ();
 };
 
 const char * 
-Scanner::TW [] = { "", "Boolean", "do", "else", "if", "false", "Number", "String", "true", "var", "while", "break", "case", "continue", "goto", "for",	"function",	"in", "instanceof", "NaN", "null",	"return", "typeof", "void", "with", "Object", "undefined", NULL};
+Scanner::TW [] = { "", "Boolean", "do", "else", "if", "false", "Number", "String", "true", "var", "while", "break", "case", "continue", "goto", "for",    "function",    "in", "instanceof", "NaN", "null",    "return", "typeof", "void", "with", "Object", "undefined", NULL};
 
 const  char * 
 Scanner::TD [] = { "@", "&", "&&", ";", ",", ":", "=", "(", ")", "==", "<", ">", "+", "+=", "-", "-=", "|", "||", "%", "%=", "/", "/=", "*", "*=", "/*", "*/", "<=", "!=", ">=", "++", "--", ".", "[", "]", "===", "!==", "{", "}", "!", "//", NULL};
@@ -184,250 +184,250 @@ Scanner::TD [] = { "@", "&", "&&", ";", ",", ":", "=", "(", ")", "==", "<", ">",
 
 Lex Scanner::get_lex () 
 { 
-	enum state { H, IDENT, NUMB, SLASH, ALE, ALE2, PLUS, MINUS, AMP, PIPE, QUOTE, COM, COM2, COM3 };
-	state CS = H; 
-	string buf; 
-	int d, j;
-	do { 
-		gc (); 
-		switch(CS) {
-			case H: 
-				if ( c == ' ' || c == '\n' || c == '\r' || c == '\t' );
-				else if (isalpha(c)) 
-				{ 
-					buf.push_back(c); 
-					CS = IDENT; 
-				}
-				else if (isdigit (c)) 
-				{ 
-					d = c - '0'; 
-					CS = NUMB; 
-				}
-				else if ( c == '/' ) 
-				{ 
-					buf.push_back(c);
-					CS = SLASH; 
-				}
-				else if ( c == '#' ) 
-				{ 
-					CS = COM3; 
-				}
-				else if ( c == '!' || c == '=') 
-				{
-					buf.push_back(c); 
-					CS = ALE; 
-				}
-				else if ( c == '*' || c == '<' || c == '>' || c == '=' ) 
-				{
-					buf.push_back(c); 
-					CS = ALE2;
-				}
-				else if ( c == '+' )
-				{
-				    buf.push_back(c);
-				    CS = PLUS;
-				}
-				else if ( c == '-' )
-				{
-				    buf.push_back(c);
-				    CS = MINUS;
-				}
-				else if ( c == '&' )
-				{
-				    buf.push_back(c);
-				    CS = AMP;
-				}
-				else if ( c == '|' )
-				{
-				    buf.push_back(c);
-				    CS = PIPE;
-				}
-				else if ( c == '"')
-				{
-				    CS = QUOTE;
-				}
-				else if ( c == EOF ) 
-					return Lex (LEX_FIN);
-				else 
-				{ 
-					buf.push_back(c);
-					if ((j = look ( buf, TD)))
-						return Lex ( (type_of_lex) (j + (int) LEX_FIN), j );
-					else throw c;
-				}
-				break;
-			case IDENT:
-				if (isalpha(c) || isdigit(c)) 
-				{
-					buf.push_back(c); 
-				}
-				else 
-				{ 
-					ungetc(c, fp);
-					if ((j = look (buf, TW)))
-						return Lex ((type_of_lex)j , j);
-					else 
-					{
-						j = put (buf);
-						return Lex (LEX_ID, j);
-					}
-				};
-				break;
-			case NUMB:
-				if (isdigit (c)) 
-				{
-					d = d * 10 + (c - '0'); 
-				}
-				else 
-				{ 
-					ungetc(c, fp);
-					return Lex(LEX_NUMBER, d); 
-				}
-				break;
-			case SLASH:
-			    if (c == '*')
-			    {
-			        buf.pop_back();
-			        CS = COM;
-			    }
-			    else if (c == '=')
-			    {
-			        buf.push_back(c);
-			        j = look ( buf, TD );
-		            return Lex( (type_of_lex) ( j + (int)LEX_FIN ), j);
-			    }
-			    else if (c == '/')
-			    {
-			        buf.pop_back();
-			        CS = COM3;
-			    }
-			    else 
-			    {
-			        ungetc ( c, fp );
-		            j = look ( buf, TD );
-		            return Lex( (type_of_lex) ( j + (int)LEX_FIN ), j);
-			    }
-			case COM:
-				if (c == '*')
-				{
-				    CS = COM2;
-				}
-				else if ( c == EOF ) throw c;
-				break;
-			case COM2:
-			    if (c == '/')
-			    {
-			        CS = H;
-			    }
-			    else if ( c == EOF )
-			    {
-			        throw c;
-			    }
-			    else CS = COM;
-			    break;
-			case COM3:
-			    if (c == '\n')
-			    {
-			        CS = H;
-			    }
-			    break;
-			case ALE:
-				if ( c == '=' ) 
-				{
-					buf.push_back(c);
-					CS = ALE2;
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break;
-			case ALE2:
-			    if ( c == '=' ) 
-				{
-					buf.push_back(c);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break; 
-			case PLUS:
-			    if ( c == '+' || c == '=' ) 
-			    {
-			        buf.push_back(c);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break; 
-			case MINUS:
-			    if ( c == '-' || c == '=' ) 
-			    {
-			        buf.push_back(c);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break; 
-			case AMP:
-			    if ( c == '&' ) 
-			    {
-			        buf.push_back(c);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break; 
-			case PIPE:
-			    if ( c == '|' ) 
-			    {
-			        buf.push_back(c);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				else 
-				{
-					ungetc(c, fp);
-					j = look (buf, TD);
-					return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
-				}
-				break; 
-			case QUOTE:
-	            if (c=='"')
-		        {
-		          string st = "";
-		          for (unsigned int i = 0; i < buf.size(); i++)
-		          {
-	                st += buf[i];
-		          }
-		          return Lex(LEX_CONSTR, 0, st);
-		        }
-		        buf.push_back(c);
-		        break;
-		} 
-	} while (true);
+    enum state { H, IDENT, NUMB, SLASH, ALE, ALE2, PLUS, MINUS, AMP, PIPE, QUOTE, COM, COM2, COM3 };
+    state CS = H; 
+    string buf; 
+    int d, j;
+    do { 
+        gc (); 
+        switch(CS) {
+            case H: 
+                if ( c == ' ' || c == '\n' || c == '\r' || c == '\t' );
+                else if (isalpha(c)) 
+                { 
+                    buf.push_back(c); 
+                    CS = IDENT; 
+                }
+                else if (isdigit (c)) 
+                { 
+                    d = c - '0'; 
+                    CS = NUMB; 
+                }
+                else if ( c == '/' ) 
+                { 
+                    buf.push_back(c);
+                    CS = SLASH; 
+                }
+                else if ( c == '#' ) 
+                { 
+                    CS = COM3; 
+                }
+                else if ( c == '!' || c == '=') 
+                {
+                    buf.push_back(c); 
+                    CS = ALE; 
+                }
+                else if ( c == '*' || c == '<' || c == '>' || c == '=' ) 
+                {
+                    buf.push_back(c); 
+                    CS = ALE2;
+                }
+                else if ( c == '+' )
+                {
+                    buf.push_back(c);
+                    CS = PLUS;
+                }
+                else if ( c == '-' )
+                {
+                    buf.push_back(c);
+                    CS = MINUS;
+                }
+                else if ( c == '&' )
+                {
+                    buf.push_back(c);
+                    CS = AMP;
+                }
+                else if ( c == '|' )
+                {
+                    buf.push_back(c);
+                    CS = PIPE;
+                }
+                else if ( c == '"')
+                {
+                    CS = QUOTE;
+                }
+                else if ( c == EOF ) 
+                    return Lex (LEX_FIN);
+                else 
+                { 
+                    buf.push_back(c);
+                    if ((j = look ( buf, TD)))
+                        return Lex ( (type_of_lex) (j + (int) LEX_FIN), j );
+                    else throw c;
+                }
+                break;
+            case IDENT:
+                if (isalpha(c) || isdigit(c)) 
+                {
+                    buf.push_back(c); 
+                }
+                else 
+                { 
+                    ungetc(c, fp);
+                    if ((j = look (buf, TW)))
+                        return Lex ((type_of_lex)j , j);
+                    else 
+                    {
+                        j = put (buf);
+                        return Lex (LEX_ID, j);
+                    }
+                };
+                break;
+            case NUMB:
+                if (isdigit (c)) 
+                {
+                    d = d * 10 + (c - '0'); 
+                }
+                else 
+                { 
+                    ungetc(c, fp);
+                    return Lex(LEX_NUMBER, d); 
+                }
+                break;
+            case SLASH:
+                if (c == '*')
+                {
+                    buf.pop_back();
+                    CS = COM;
+                }
+                else if (c == '=')
+                {
+                    buf.push_back(c);
+                    j = look ( buf, TD );
+                    return Lex( (type_of_lex) ( j + (int)LEX_FIN ), j);
+                }
+                else if (c == '/')
+                {
+                    buf.pop_back();
+                    CS = COM3;
+                }
+                else 
+                {
+                    ungetc ( c, fp );
+                    j = look ( buf, TD );
+                    return Lex( (type_of_lex) ( j + (int)LEX_FIN ), j);
+                }
+            case COM:
+                if (c == '*')
+                {
+                    CS = COM2;
+                }
+                else if ( c == EOF ) throw c;
+                break;
+            case COM2:
+                if (c == '/')
+                {
+                    CS = H;
+                }
+                else if ( c == EOF )
+                {
+                    throw c;
+                }
+                else CS = COM;
+                break;
+            case COM3:
+                if (c == '\n')
+                {
+                    CS = H;
+                }
+                break;
+            case ALE:
+                if ( c == '=' ) 
+                {
+                    buf.push_back(c);
+                    CS = ALE2;
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break;
+            case ALE2:
+                if ( c == '=' ) 
+                {
+                    buf.push_back(c);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break; 
+            case PLUS:
+                if ( c == '+' || c == '=' ) 
+                {
+                    buf.push_back(c);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break; 
+            case MINUS:
+                if ( c == '-' || c == '=' ) 
+                {
+                    buf.push_back(c);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break; 
+            case AMP:
+                if ( c == '&' ) 
+                {
+                    buf.push_back(c);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break; 
+            case PIPE:
+                if ( c == '|' ) 
+                {
+                    buf.push_back(c);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                else 
+                {
+                    ungetc(c, fp);
+                    j = look (buf, TD);
+                    return Lex((type_of_lex) ( j + (int) LEX_FIN), j );
+                }
+                break; 
+            case QUOTE:
+                if (c=='"')
+                {
+                  string st = "";
+                  for (unsigned int i = 0; i < buf.size(); i++)
+                  {
+                    st += buf[i];
+                  }
+                  return Lex(LEX_CONSTR, 0, st);
+                }
+                buf.push_back(c);
+                break;
+        } 
+    } while (true);
 };
 
 ostream & operator<< ( ostream &s, Lex l ) {
@@ -439,7 +439,7 @@ ostream & operator<< ( ostream &s, Lex l ) {
     else if (l.t_lex == 6)
     t = "NUMBER";
     else if (l.t_lex == 67)
-    {	  
+    {      
         t = "STRING CONST";
         s << '(' << t << ',' << l.s_lex << ");" << endl;
         return s;
@@ -456,11 +456,11 @@ ostream & operator<< ( ostream &s, Lex l ) {
         t = "!F";
     else if (l.t_lex == 73)
         t = "+#";
-	else if (l.t_lex == 74)
+    else if (l.t_lex == 74)
         t = "#+";
-	else if (l.t_lex == 75)
+    else if (l.t_lex == 75)
         t = "-#";
-	else if (l.t_lex == 76)
+    else if (l.t_lex == 76)
         t = "#-";
     else
         throw l;
@@ -486,8 +486,8 @@ class Parser
     Scanner scan;
     stack<int> st_int;
     stack<type_of_lex> st_lex;
-	stack <int> labels_for_con;
-	stack <int> labels_for_break;
+    stack <int> labels_for_con;
+    stack <int> labels_for_break;
     void S();
     void B();
     void D();
@@ -498,7 +498,6 @@ class Parser
     void FOR_PARAMETERS();
     void dec(type_of_lex type, int i);
     void check_id();
-    void check_op();
     void check_not();
     void eq_type(type_of_lex &);
     void eq_bool();
@@ -507,7 +506,7 @@ class Parser
         curr_lex = scan.get_lex();
         c_type = curr_lex.get_type();
         c_val = curr_lex.get_value();
-		cout << curr_lex;
+        cout << curr_lex;
     }
 
 public:
@@ -518,18 +517,18 @@ public:
 
 void Parser::analyze()
 {
-	int num = 0;
-	cout << "\nLex for self-checking:\n\n";
-	gl();
+    int num = 0;
+    cout << "\nLex for self-checking:\n\n";
+    gl();
     S();
-	if (c_type != LEX_FIN)
-		throw curr_lex;
-	cout << "\n\nEverything is OK. Let's look at POLIZ:\n\n";
-	for (Lex l : poliz)
-	{
+    if (c_type != LEX_FIN)
+        throw curr_lex;
+    cout << "\n\nEverything is OK. Let's look at POLIZ:\n\n";
+    for (Lex l : poliz)
+    {
         cout << num <<' '<< l;
-		num++;
-	}
+        num++;
+    }
 }
 
 void Parser::S()
@@ -538,75 +537,75 @@ void Parser::S()
     if (c_type == LEX_IF)
     {
         gl();
-		if (c_type != LEX_LPAREN)
-			throw curr_lex;
-		else
-		{
-			gl();
-			E();
-			eq_bool();
-			pl2 = poliz.size();
-			poliz.push_back(Lex());
-			poliz.push_back(Lex(POLIZ_FGO));
-			if (c_type == LEX_RPAREN)
-			{
-				gl();
-				B();
-				pl3 = poliz.size();
-				poliz.push_back(Lex());
-				poliz.push_back(Lex(POLIZ_GO));
-				if (c_type == LEX_ELSE)
-				{
-					poliz[pl2] = Lex(POLIZ_LABEL, poliz.size());
-					gl();
-					B();
-					poliz[pl3] = Lex(POLIZ_LABEL, poliz.size());
-				}
-				else
-				{
-					poliz.pop_back();
-					poliz.pop_back();
-					poliz[pl2] = Lex(POLIZ_LABEL, poliz.size());
-				}
-			}
-			else
-				throw curr_lex;
-		}
+        if (c_type != LEX_LPAREN)
+            throw curr_lex;
+        else
+        {
+            gl();
+            E();
+            eq_bool();
+            pl2 = poliz.size();
+            poliz.push_back(Lex());
+            poliz.push_back(Lex(POLIZ_FGO));
+            if (c_type == LEX_RPAREN)
+            {
+                gl();
+                B();
+                pl3 = poliz.size();
+                poliz.push_back(Lex());
+                poliz.push_back(Lex(POLIZ_GO));
+                if (c_type == LEX_ELSE)
+                {
+                    poliz[pl2] = Lex(POLIZ_LABEL, poliz.size());
+                    gl();
+                    B();
+                    poliz[pl3] = Lex(POLIZ_LABEL, poliz.size());
+                }
+                else
+                {
+                    poliz.pop_back();
+                    poliz.pop_back();
+                    poliz[pl2] = Lex(POLIZ_LABEL, poliz.size());
+                }
+            }
+            else
+                throw curr_lex;
+        }
     } // end if
     else if (c_type == LEX_WHILE)
     {
         pl0 = poliz.size();
-		labels_for_con.push(poliz.size());
-		gl();
-		if (c_type != LEX_LPAREN)
-			throw curr_lex;
-		else
-		{
-			gl();
-			E();
-			eq_bool();
-			pl1 = poliz.size();
-			poliz.push_back(Lex());
-			poliz.push_back(Lex(POLIZ_FGO));
-			if (c_type == LEX_RPAREN)
-			{
-				gl();
-				B();
-				poliz.push_back(Lex(POLIZ_LABEL, pl0));
-				poliz.push_back(Lex(POLIZ_GO));
-				poliz[pl1] = Lex(POLIZ_LABEL, poliz.size());
-			}
-			else
-				throw curr_lex;
-		}
-		if (!labels_for_break.empty())
-		{
-			poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
-			labels_for_break.pop();
-		}
+        labels_for_con.push(poliz.size());
+        gl();
+        if (c_type != LEX_LPAREN)
+            throw curr_lex;
+        else
+        {
+            gl();
+            E();
+            eq_bool();
+            pl1 = poliz.size();
+            poliz.push_back(Lex());
+            poliz.push_back(Lex(POLIZ_FGO));
+            if (c_type == LEX_RPAREN)
+            {
+                gl();
+                B();
+                poliz.push_back(Lex(POLIZ_LABEL, pl0));
+                poliz.push_back(Lex(POLIZ_GO));
+                poliz[pl1] = Lex(POLIZ_LABEL, poliz.size());
+            }
+            else
+                throw curr_lex;
+        }
+        if (!labels_for_break.empty())
+        {
+            poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
+            labels_for_break.pop();
+        }
     } // end while
-	else if (c_type == LEX_DO) 
-	{
+    else if (c_type == LEX_DO) 
+    {
         pl0 = poliz.size();
         gl();
         B();
@@ -634,156 +633,156 @@ void Parser::S()
         }
         else
             throw curr_lex;
-		if (!labels_for_break.empty())
-		{
-			poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
-			labels_for_break.pop();
-		}
+        if (!labels_for_break.empty())
+        {
+            poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
+            labels_for_break.pop();
+        }
     } //end do while
-	else if (c_type == LEX_FOR) 
-	{
+    else if (c_type == LEX_FOR) 
+    {
         gl();
         if (c_type == LEX_LPAREN) 
-		{
+        {
             gl();
             FOR_PARAMETERS();
-			pl0 = poliz.size();
-			if (c_type == LEX_SEMICOLON) {
+            pl0 = poliz.size();
+            if (c_type == LEX_SEMICOLON) {
                 gl();
                 E();
                 poliz.push_back(Lex());
                 poliz.push_back(Lex(POLIZ_FGO));
                 poliz.push_back(Lex());
-				poliz.push_back(Lex(POLIZ_GO));
-				pl1 = poliz.size();
-				labels_for_con.push(poliz.size());
-				if (c_type == LEX_SEMICOLON) {
-					gl();
-					FOR_PARAMETERS();
-					poliz.push_back(Lex(POLIZ_LABEL, pl0));
-					poliz.push_back(Lex(POLIZ_GO));
-					poliz[pl1-2] = Lex(POLIZ_LABEL, poliz.size());
-					if (c_type == LEX_RPAREN) {
-						gl();
-						B();
-						poliz.push_back(Lex(POLIZ_LABEL, pl1));
-						poliz.push_back(Lex(POLIZ_GO));
-						poliz[pl1-4] = Lex(POLIZ_LABEL, poliz.size());
-					}
-					else
-						throw curr_lex;
-				}
-				else
-					throw curr_lex;
-			}
-			if (!labels_for_break.empty())
-			{
-				poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
-				labels_for_break.pop();
-			}
+                poliz.push_back(Lex(POLIZ_GO));
+                pl1 = poliz.size();
+                labels_for_con.push(poliz.size());
+                if (c_type == LEX_SEMICOLON) {
+                    gl();
+                    FOR_PARAMETERS();
+                    poliz.push_back(Lex(POLIZ_LABEL, pl0));
+                    poliz.push_back(Lex(POLIZ_GO));
+                    poliz[pl1-2] = Lex(POLIZ_LABEL, poliz.size());
+                    if (c_type == LEX_RPAREN) {
+                        gl();
+                        B();
+                        poliz.push_back(Lex(POLIZ_LABEL, pl1));
+                        poliz.push_back(Lex(POLIZ_GO));
+                        poliz[pl1-4] = Lex(POLIZ_LABEL, poliz.size());
+                    }
+                    else
+                        throw curr_lex;
+                }
+                else
+                    throw curr_lex;
+            }
+            if (!labels_for_break.empty())
+            {
+                poliz[labels_for_break.top()] = Lex(POLIZ_LABEL, poliz.size());
+                labels_for_break.pop();
+            }
         }
         else
             throw curr_lex;
     } //end for
     else if (c_type == LEX_ID)
     {
-		int l_v_index = curr_lex.get_value();
-		type_of_lex new_val;
+        int l_v_index = curr_lex.get_value();
+        type_of_lex new_val;
         check_id();
         poliz.push_back(Lex(POLIZ_ADDRESS, c_val));
         gl();
         if (c_type == LEX_ASSIGN || c_type == LEX_MINEQ || c_type == LEX_PLEQ || c_type == LEX_TIMESEQ || c_type == LEX_REMEQ || c_type == LEX_SLEQ)
         {
-			type_of_lex tmp = c_type;
+            type_of_lex tmp = c_type;
             gl();
             E();
             eq_type(new_val);
-			TID[l_v_index].put_type(new_val);
+            TID[l_v_index].put_type(new_val);
             poliz.push_back(Lex(tmp));
-			if (c_type == LEX_SEMICOLON)
-			{
-				gl();
-			}
-			else if (c_type == LEX_FIN)
-			    return;
-			else
-				throw curr_lex;
+            if (c_type == LEX_SEMICOLON)
+            {
+                gl();
+            }
+            else if (c_type == LEX_FIN)
+                return;
+            else
+                throw curr_lex;
         }
-		else if (c_type == LEX_INC)
-		{
-			poliz.push_back(Lex(POLIZ_RINC));
-			gl();
-			if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
-				throw curr_lex;
-			else if (c_type == LEX_SEMICOLON)
-			    gl();
-		}
-		else if (c_type == LEX_DEC)
-		{
-			poliz.push_back(Lex(POLIZ_RDEC));
-			gl();
-			if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
-				throw curr_lex;
-			else if (c_type == LEX_SEMICOLON)
-			    gl();
-		}
+        else if (c_type == LEX_INC)
+        {
+            poliz.push_back(Lex(POLIZ_RINC));
+            gl();
+            if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
+                throw curr_lex;
+            else if (c_type == LEX_SEMICOLON)
+                gl();
+        }
+        else if (c_type == LEX_DEC)
+        {
+            poliz.push_back(Lex(POLIZ_RDEC));
+            gl();
+            if (c_type != LEX_SEMICOLON && c_type != LEX_FIN)
+                throw curr_lex;
+            else if (c_type == LEX_SEMICOLON)
+                gl();
+        }
         else
             throw curr_lex;
     } // assign-end
-	else if (c_type == LEX_CONTINUE)
-	{
-		if (labels_for_con.empty())
-		{
-			throw curr_lex;
-		}
-		int lab = labels_for_con.top();
-		labels_for_con.pop();
-		poliz.push_back(Lex(POLIZ_LABEL, lab));
-		poliz.push_back(Lex(POLIZ_GO));
-		gl();
-		if (c_type != LEX_SEMICOLON)
-		{
-			throw curr_lex;
-		}
-		gl();
-	}
-	else if (c_type == LEX_BREAK)
-	{
-		labels_for_break.push(poliz.size());
-		poliz.push_back(Lex());
-		poliz.push_back(Lex(POLIZ_GO));
-		gl();
-		if (c_type != LEX_SEMICOLON)
-		{
-			throw curr_lex;
-		}
-		gl();
-	}
-	else if (c_type == LEX_VAR)
-	{
-		gl();
-		D();
-	} // var-end
-	else if (c_type == LEX_FIN)
-	{
-		return;
-	}
-	else if (c_type == LEX_END)
-	{
-		return;
-	}
-	if (c_type == LEX_INC || c_type == LEX_DEC)
-	{
-		E();
-		gl();
-	}
-	S();
+    else if (c_type == LEX_CONTINUE)
+    {
+        if (labels_for_con.empty())
+        {
+            throw curr_lex;
+        }
+        int lab = labels_for_con.top();
+        labels_for_con.pop();
+        poliz.push_back(Lex(POLIZ_LABEL, lab));
+        poliz.push_back(Lex(POLIZ_GO));
+        gl();
+        if (c_type != LEX_SEMICOLON)
+        {
+            throw curr_lex;
+        }
+        gl();
+    }
+    else if (c_type == LEX_BREAK)
+    {
+        labels_for_break.push(poliz.size());
+        poliz.push_back(Lex());
+        poliz.push_back(Lex(POLIZ_GO));
+        gl();
+        if (c_type != LEX_SEMICOLON)
+        {
+            throw curr_lex;
+        }
+        gl();
+    }
+    else if (c_type == LEX_VAR)
+    {
+        gl();
+        D();
+    } // var-end
+    else if (c_type == LEX_FIN)
+    {
+        return;
+    }
+    else if (c_type == LEX_END)
+    {
+        return;
+    }
+    if (c_type == LEX_INC || c_type == LEX_DEC)
+    {
+        E();
+        gl();
+    }
+    S();
 }
 
 
 void Parser::B()
 {
-	if (c_type == LEX_BEGIN)
+    if (c_type == LEX_BEGIN)
     {
         gl();
         S();
@@ -819,7 +818,7 @@ void Parser::D()
             gl();
             E();
             from_st(st_lex, i);
-			dec(i, l_v_index);
+            dec(i, l_v_index);
             poliz.push_back(Lex(tmp));
         }
         else
@@ -846,7 +845,7 @@ void Parser::D()
                     gl();
                     E();
                     from_st(st_lex, i);
-			        dec(i, l_v_index);
+                    dec(i, l_v_index);
                     poliz.push_back(Lex(tmp));
                 }
                 else
@@ -867,29 +866,28 @@ void Parser::D()
 
 void Parser::E()
 {
-	if (c_type == LEX_INC)
-	{
-		gl();
-		F();
-		poliz.push_back(Lex(POLIZ_LINC));
-	}
-	else if (c_type == LEX_DEC)
-	{
-		gl();
-		F();
-		poliz.push_back(Lex(POLIZ_LDEC));
-	}
-	else
-	{
-		E1();
-		if (c_type == LEX_EQ || c_type == LEX_LSS || c_type == LEX_GRT || c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ)
-		{
-			st_lex.push(c_type);
-			gl();
-			E1();
-			check_op();
-		}
-	}
+    if (c_type == LEX_INC)
+    {
+        gl();
+        F();
+        poliz.push_back(Lex(POLIZ_LINC));
+    }
+    else if (c_type == LEX_DEC)
+    {
+        gl();
+        F();
+        poliz.push_back(Lex(POLIZ_LDEC));
+    }
+    else
+    {
+        E1();
+        if (c_type == LEX_EQ || c_type == LEX_LSS || c_type == LEX_GRT || c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ)
+        {
+            st_lex.push(c_type);
+            gl();
+            E1();
+        }
+    }
 }
 
 void Parser::E1()
@@ -900,7 +898,6 @@ void Parser::E1()
         st_lex.push(c_type);
         gl();
         T();
-        check_op();
     }
 }
 
@@ -912,7 +909,6 @@ void Parser::T()
         st_lex.push(c_type);
         gl();
         F();
-        check_op();
     }
 }
 
@@ -942,7 +938,7 @@ void Parser::F()
         poliz.push_back(Lex(LEX_FALSE, 0));
         gl();
     }
-	else if (c_type == LEX_CONSTR)
+    else if (c_type == LEX_CONSTR)
     {
         st_lex.push(LEX_STRING);
         poliz.push_back(Lex(curr_lex));
@@ -969,40 +965,40 @@ void Parser::F()
 
 void Parser::FOR_PARAMETERS()
 {
-	int l_v_index = curr_lex.get_value();
-	type_of_lex new_val;
-	check_id();
-	poliz.push_back(Lex(POLIZ_ADDRESS, c_val));
-	gl();
-	if (c_type == LEX_ASSIGN || c_type == LEX_MINEQ || c_type == LEX_PLEQ ||
-		c_type == LEX_TIMESEQ || c_type == LEX_REMEQ || c_type == LEX_SLEQ)
-	{
-		gl();
-		E();
-		eq_type(new_val);
-		TID[l_v_index].put_type(new_val);
-		poliz.push_back(Lex(LEX_ASSIGN));
-	}
-	else if (c_type == LEX_INC)
-	{
-		poliz.push_back(Lex(POLIZ_RINC));
-		gl();
-		if (c_type!=LEX_SEMICOLON && c_type!=LEX_RPAREN)
-			throw curr_lex;
-		if (c_type == LEX_SEMICOLON)
-		    gl();
-	}
-	else if (c_type == LEX_DEC)
-	{
-		poliz.push_back(Lex(POLIZ_RDEC));
-		gl();
-		if (c_type != LEX_SEMICOLON && c_type!=LEX_RPAREN)
-			throw curr_lex;
-		if (c_type == LEX_SEMICOLON)
-		    gl();
-	}
-	else
-		throw curr_lex;
+    int l_v_index = curr_lex.get_value();
+    type_of_lex new_val;
+    check_id();
+    poliz.push_back(Lex(POLIZ_ADDRESS, c_val));
+    gl();
+    if (c_type == LEX_ASSIGN || c_type == LEX_MINEQ || c_type == LEX_PLEQ ||
+        c_type == LEX_TIMESEQ || c_type == LEX_REMEQ || c_type == LEX_SLEQ)
+    {
+        gl();
+        E();
+        eq_type(new_val);
+        TID[l_v_index].put_type(new_val);
+        poliz.push_back(Lex(LEX_ASSIGN));
+    }
+    else if (c_type == LEX_INC)
+    {
+        poliz.push_back(Lex(POLIZ_RINC));
+        gl();
+        if (c_type!=LEX_SEMICOLON && c_type!=LEX_RPAREN)
+            throw curr_lex;
+        if (c_type == LEX_SEMICOLON)
+            gl();
+    }
+    else if (c_type == LEX_DEC)
+    {
+        poliz.push_back(Lex(POLIZ_RDEC));
+        gl();
+        if (c_type != LEX_SEMICOLON && c_type!=LEX_RPAREN)
+            throw curr_lex;
+        if (c_type == LEX_SEMICOLON)
+            gl();
+    }
+    else
+        throw curr_lex;
 }
 ////////////////////////////////////////////////////////////////
 
@@ -1025,24 +1021,6 @@ void Parser::check_id ()
         throw "not declared";
 }
  
-void Parser::check_op () 
-{
-    type_of_lex t1, t2, op, t = LEX_NUMBER, r = LEX_BOOLEAN;
- 
-    from_st(st_lex, t2);
-    from_st(st_lex, op);
-    from_st(st_lex, t1);
-    if (op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH || op == LEX_REM)
-        r = LEX_NUMBER;
-    if (op == LEX_DPIPE || op == LEX_DAMP)
-        t = LEX_BOOLEAN;
-    if (t1 == t2  &&  t1 == t) 
-       st_lex.push(r);
-    else
-        throw "wrong types are in operation";
-    poliz.push_back (Lex (op) );
-}
- 
 void Parser::check_not () 
 {
     if (st_lex.top() != LEX_BOOLEAN)
@@ -1058,7 +1036,7 @@ void Parser::eq_type (type_of_lex & t1)
     from_st(st_lex, t1);
     if (t1 == LEX_UNDEFINED)
     {
-    	t1 = t2;
+        t1 = t2;
     }
     else if ( t1 != t2)
     {

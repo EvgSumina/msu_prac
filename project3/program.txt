@@ -1,12 +1,7 @@
-var a;
+var a, c = 3;
 var b;
-b = 3;
-a = 2 + b;
 
 for (a = 1; a < 3; a++)
 {
-b++;
-continue;
+	++b;
 }
-
-
