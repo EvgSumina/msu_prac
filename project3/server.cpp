@@ -13,6 +13,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 #include <iostream>
 using namespace std;
@@ -45,53 +46,6 @@ char* itoa (int n)
     return buf;
 }
 
-struct ArrOfPids{
-    int size;
-    int* array;
-    
-    ArrOfPids()
-    {
-        size = 0;
-        array = new int[0];
-    }
-    
-    void Add(int pid)
-    {
-        int i;
-        int* newArr = new int[size + 1];
-        for (i = 0; i < size; i++)
-        {
-            newArr[i] = array[i];
-        }
-        newArr[size] = pid;
-        size++;
-        delete [] array;
-        array = newArr;
-    }
-    
-    void Resize(int pid)
-    {
-        int* newArr = new int[size - 1];
-        int i = 0;
-        for(i = 0; array[i] != pid; i++) newArr[i] = array[i];
-        for(int j = i + 1; j < size; j++) newArr[j - 1] = array[i];
-        size--;
-        delete [] array;
-        array = newArr;
-    }
-    
-    int &operator[] (int i)
-    {
-        return array[i];
-    }
-    
-    ~ArrOfPids()
-    {
-        delete [] array;
-    }
-};
-
-ArrOfPids pids;
 
 class Socket {
     int numSocket;
@@ -177,6 +131,7 @@ struct Server: public Socket, public Address {
     }
 };
 
+
 class Client: public Address {
     unsigned int len;
     int sockfd;
@@ -192,98 +147,40 @@ class Client: public Address {
         return len;
     }
     
-    bool is_cgi()
+    bool is_cgi(char * str)
     {
-        char* last = get_last();
-        for(unsigned int i = 0; i < strlen(last); i++)
-        {
-            if(last[i] == '?')
-            {
-                delete [] last;
-                return true;
-            }
-        }
-        delete [] last;
-        return false;
+        if (strncmp(str, "cgi-bin", 7))
+            return false;
+        else
+            return true;
     }
     
-    int get_amps()
-    {
-        char* last = get_last();
-        int i = 0, n = 0;
-        while(last[i] != '?') i++;
-        while(last[i] != 0)
-        {
-            if(last[i] == '&') n++;
-            i++;
-        }
-        delete [] last;
-        return n;
-    }
-    
-    char* get_argv0()
-    {
-        char* last = get_last();
-        int i = 0;
-        while(last[i] != '?') i++;
-        last[i] = 0;
-        return last;
-    }
-    
-    char* get_all_env()
+    char* get_all_env(char* str)
     {
         char* all_env = new char[BUFLEN];
         int i = strlen(buf) - 1, k = 0;
-        while(buf[i] != '?')
+        while(str[i] != '?')
         {
-            if(buf[i--] == 0)
+            if(str[i--] == 0)
             {
                 all_env[0] = 0;
                 return all_env;
             }
         }
-        for(unsigned int j = i+1; j < strlen(buf); j++) all_env[k++] = buf[j];
+        for(unsigned int j = i + 1; j < strlen(str); j++) all_env[k++] = str[j];
         return all_env;
     }
     
-    char* get_first() const
+    char* get_first(char* str) const
     {
         char* first = new char[BUFLEN];
-        strcpy(first, buf + 5);
+        strcpy(first, str);
         int i = 0;
         while(first[i++] != '?');
-        first[i - 1] = 0;
+        first[i-1] = 0;
         return first;
     }
-    
-    char* get_last() const
-    {
-        char* last = new char[BUFLEN];
-        int i = 5, j = 0;
-        while(buf[i] != 0)
-        {
-            if(buf[i] != '/') last[j++] = buf[i];
-            else j = 0;
-            i++;
-        }
-        last[j] = 0;
-        return last;
-    }
-    
-    void str_put(char* dest, const char* src)
-    {
-        dest = new char[strlen(src) + 1];
-        strcpy(dest, src);
-        dest[strlen(src)] = 0;
-    }
-    
-    void str_put2(char* dest, const char* src1, const char* src2)
-    {
-        dest = new char[strlen(src1) + strlen(src2) + 1];
-        strcpy(dest, src1);
-        strcat(dest, src2);
-        dest[strlen(src1) + strlen(src2)] = 0;
-    }
+ 
 public:
 
     Client(): Address(){};
@@ -297,123 +194,126 @@ public:
         }
     }
     
-    int Read()
+    int Request(int port)
     {
+        Lok = sockfd;
+        bool home = true;
         if((len = recv(sockfd, &buf, BUFLEN, 0)) < 0)
         {
-            shutdown(sockfd, 1);
+            shutdown(sockfd, SHUT_RDWR);
             close(sockfd);
             cerr << "Error with reading socket" << endl;
-            exit(1);
+            exit(3);
         }
         
-        if(!isalpha(buf[0])) return -1;
-        
-        if(strncmp(buf, "GET /", 5))
+        if(strncmp(buf, "GET", 3))
         {
             Send("501.html", "HTTP/1.0 501 NotImplemented");
-            shutdown(sockfd, 1);
+            shutdown(sockfd, SHUT_RDWR);
             close(sockfd);
             cerr << "Error: BadRequest" << endl;
             return 501;
         }
-        
-        int i = 5;
-        while(buf[i] && (buf[i++] > ' '));
-        buf[i - 1] = 0;
+        else 
+        {
+            int i = 5;
+            char c = buf[i];
+            while(c != ' ')
+            {
+                i++;
+                c = buf[i];
+            }
+            char path[i - 3];
+            if(i != 5)
+            {
+                home = false;
+                copy(&buf[5], &buf[i], &path[0]);
+                path[i - 5] = 0;
+            }
+            else
+            {
+                path[0] = '/';
+                path[1] = 0;
+            }
+            cout << "File: " << path << endl;
+            if (is_cgi(path))
+            {
+                cout << "It is cgi" << endl;
+                chdir("./cgi-bin");
+                int status;
+                int pid;
+                string name = to_string(getpid()) + ".txt";
+                int fd = open(name.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
+                dup2(fd, 1);
+                if((pid = fork()) < 0)
+                {
+                    cerr << "Can't make process" << endl;
+                    exit(6);
+                }
+                else if (pid == 0)
+                {
+                    //chdir("./cgi-bin");
+                    string processName = "./";
+                    processName += get_first(path);
+                    char *argv[] = { (char*)processName.c_str(), NULL };
+                    string QUERY_STRING = "QUERY_STRING=";
+                    QUERY_STRING += get_all_env(path);
+                    char *env[] = { (char*)QUERY_STRING.c_str(), NULL};
+                    execve(processName.c_str(), argv, env);
+                    perror("execve() ");
+                    delete [] argv[0];
+                    delete [] env[0];
+                    exit(7);
+                }
+                wait(&status);
+                close(fd);
+                if(WIFEXITED(status))
+                {
+                    if(WEXITSTATUS(status) == 0)
+                    {
+                        Send(name.c_str(), "HTTP/1.0 200 MyServer");
+                    }
+                    else
+                    {
+                        cerr << "CGI finished with status " << WEXITSTATUS(status) << endl;
+                        Send("cgi.html", "HTTP/1.0 500 MyServer");
+                    }
+                }
+                else if(WIFSIGNALED(status))
+                {
+                    cerr << "CGI sent signal " << WIFSIGNALED(status) << endl;
+                    Send("cgi.html", "HTTP/1.0 500 MyServer");
+                }
+            }
+            else
+            {
+                if(!home && (fd = open(path, O_RDONLY)) < 0)
+                {
+                    Send("404.html", "HTTP/1.0 404 PageNotFound");
+                    shutdown(sockfd, SHUT_RDWR);
+                    close(sockfd);
+                    cerr << "Error: 404" << endl;
+                    return 404;
+                }
+                if(home) Send("index.html", "HTTP/1.0 200 MyServer");
+                else Send(path, "HTTP/1.0 200 MyServer");
+            }
+        }
+        shutdown(sockfd, SHUT_RDWR);
+        close(sockfd);
         return 0;
     }
     
-    int Request(int port)
-    {
-        Lok = sockfd;
-        if(Read() == -1) 
-            return 0;
-        if(is_cgi())
-        {
-            int pid = fork();
-            if(pid < 0)
-            {
-                cerr << "Не удалось создать процесс" << endl;
-                exit(6);
-            }
-            else if (pid == 0)
-            {
-                char** argv = new char*[2];
-                argv[0] = get_argv0();
-                argv[1] = NULL;
-                char** env = new char*[7];
-                str_put(env[0], "SERVER_ADDR=127.0.0.1");
-                str_put(env[1], "CONTENT_TYPE=text/plain");
-                str_put(env[2], "SERVER_PROTOCOL=HTTP/1.0");
-                char* str_first = get_first();
-                str_put2(env[3], "SCRIPT_NAME=", str_first);
-                delete [] str_first;
-                char* str_port = itoa(port);
-                str_put2(env[4], "SERVER_PORT=", str_port);
-                delete [] str_port;
-                char* str_all_env = get_all_env();
-                str_put2(env[5], "QUERRY_STRING=", str_all_env);
-                delete [] str_all_env;
-                env[6] = NULL;
-                char* str_pid = itoa(getpid());
-                char* filename = new char[strlen(str_pid) + 8];
-                strcpy(filename, "tmp");
-                strcat(filename, str_pid);
-                strcat(filename, ".txt");
-                filename[strlen(str_pid) + 7] = 0;
-                creat(filename, 0666);
-                int fd = open(filename, O_TRUNC | O_WRONLY);
-                if(fd < 0)
-                {
-                    cout << "Ошибка при создании файла" << endl;
-                    exit(9);
-                }
-                dup2(fd, 1);
-                close(fd);
-                execvpe(argv[0], argv, env);
-                cerr << "Не удалось запустить cgi" << endl;
-                delete [] str_pid;
-                delete [] filename;
-                delete [] argv[0];
-                delete [] argv[1];
-                for(int i = 0; i < 7; i++) delete [] env[i];
-                delete [] argv;
-                delete [] env;
-                exit(7);
-            } 
-            else
-            {
-                pids.Add(pid);
-                return 1;
-            }
-        } else
-        {
-            if(strlen(buf) > 5 && (fd = open(buf + 5, O_RDONLY)) < 0)
-            {
-                Send("404.html", "HTTP/1.0 404 PageNotFound");
-                shutdown(sockfd, 1);
-                close(sockfd);
-                cerr << "Error: 404" << endl;
-                return 404;
-            }
-            if(!strcmp(buf+5, "")) strcpy(buf + 5, "index.html");
-            Send(buf + 5, "HTTP/1.0 200 MyServer");
-            shutdown(sockfd, 1);
-            close(sockfd);
-        }
-        return 0;
-    }
     void Send(const char* file, const char* header)
     {
         int fileLength;
-        char* strFileLength;
+        string strFileLength;
         fd = open(file, O_RDONLY);
         fileLength = GetLength(fd);
         strcpy(buf, header);
         strcat(buf, "\nAllow: GET\nServer: MyServer/0.1\nConnection: keep-alive\nContet-length: ");
-        strFileLength = itoa(fileLength);
-        strcat(buf, strFileLength);
+        strFileLength = to_string(fileLength);
+        strcat(buf, strFileLength.c_str());
         strcat(buf, "\n\n");
         len = strlen(buf);
         send(sockfd, &buf, len, 0);
@@ -421,7 +321,6 @@ public:
         {
             send(sockfd, &buf, len, 0);
         }
-        delete [] strFileLength;
         close(fd);
     }
     
@@ -449,71 +348,15 @@ int main(int argc, char* argv[]) {
     int portnum = atoi(argv[1]); 
     
     Server server(portnum);
-    Client client;
     
     server.Bind();
     server.Listen();
     
-    fd_set readset;
-    timeval timeout;
-    int activity, status;
-    
     while(1)
     {
-        FD_ZERO(&readset);
-        FD_SET(server.getnum(), &readset);
-        
-        if(pids.size == 0)
-        {
-            activity = select(server.getnum() + 1, &readset, NULL, NULL, NULL);
-        } else 
-        {
-            timeout.tv_sec = 0;
-            timeout.tv_usec = 500000;
-            activity = select(server.getnum() + 1, &readset, NULL, NULL, &timeout);
-        }
-        
-        if(activity < 0)
-        {
-            cerr << "Error with select" << endl;
-            exit(4);
-        } 
-        else if(activity > 0)
-        {
-            if(FD_ISSET(server.getnum(), &readset))
-            {
-                fcntl(client.get_socket(), F_SETFL, O_NONBLOCK);
-                client.Accept(server.getnum());
-                int req = client.Request(server.getport());
-                if(req == 1) continue;
-            }
-        }
-        
-        for(int i = 0; i < pids.size; i++)
-        {
-            if(waitpid(pids[i], &status, WNOHANG))
-            {
-                if(WIFEXITED(status)) 
-                {
-                    char* str_pid = itoa(pids[i]);
-                    char* filename = new char[strlen(str_pid) + 8];
-                    strcpy(filename, "tmp");
-                    strcat(filename, str_pid);
-                    strcat(filename, ".txt");
-                    client.Send(filename, "HTTP/1.0 200 MyServer");
-                    remove(filename);
-                    delete[] str_pid;
-                    delete[] filename;
-                } 
-                else 
-                {
-                    client.Send("cgi.html", "HTTP/1.0 500 MyServer");
-                }
-                pids.Resize(pids[i]);
-                shutdown(client.get_socket(), 1);
-                close(client.get_socket());
-            }
-        }
+        Client client;
+        client.Accept(server.getnum());
+        client.Request(portnum);
     }
     return 0;
 }

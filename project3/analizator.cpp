@@ -12,10 +12,10 @@ using namespace std;
 enum type_of_lex 
 {
     LEX_NULL,  //0
-    LEX_BOOLEAN, LEX_DO, LEX_ELSE, LEX_IF, LEX_FALSE, LEX_NUMBER, LEX_STRING, LEX_TRUE, LEX_VAR, LEX_WHILE, LEX_BREAK, LEX_CASE, LEX_CONTINUE, LEX_GOTO, LEX_FOR, LEX_FUNCTION, LEX_IN, LEX_INSTANCE, LEX_NAN, LEX_NILL, LEX_RETURN, LEX_TYPEOF, LEX_VOID, LEX_WITH, LEX_OBJECT, LEX_UNDEFINED,
-    LEX_FIN, //27
-    LEX_AMP, LEX_DAMP, LEX_SEMICOLON, LEX_COMMA, LEX_COLON, LEX_ASSIGN, LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GRT, LEX_PLUS, LEX_PLEQ, /*40 */ LEX_MINUS, LEX_MINEQ, LEX_PIPE, LEX_DPIPE, LEX_REM, LEX_REMEQ, LEX_SLASH, LEX_SLEQ, LEX_TIMES, LEX_TIMESEQ, LEX_SLASHTIMES, LEX_TIMESLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ, LEX_INC, LEX_DEC, LEX_POINT, LEX_LBRACK, LEX_RBRACK, LEX_STEQ, LEX_STNEQ, LEX_BEGIN, LEX_END, LEX_NOT, LEX_DSLASH,
-    LEX_CONSTR, //67
+    LEX_BOOLEAN, LEX_DO, LEX_ELSE, LEX_IF, LEX_FALSE, LEX_NUMBER, LEX_STRING, LEX_TRUE, LEX_VAR, LEX_WHILE, LEX_BREAK, LEX_CASE, LEX_CONTINUE, LEX_GOTO, LEX_FOR, LEX_FUNCTION, LEX_IN, LEX_INSTANCE, LEX_NAN, LEX_NILL, LEX_RETURN, LEX_TYPEOF, LEX_VOID, LEX_WITH, LEX_OBJECT, LEX_UNDEFINED, POLIZ_WRITE, POLIZ_GETENV,
+    LEX_FIN, //29
+    LEX_AMP, LEX_DAMP, LEX_SEMICOLON, LEX_COMMA, LEX_COLON, LEX_ASSIGN, LEX_LPAREN, LEX_RPAREN, LEX_EQ, LEX_LSS, LEX_GRT, LEX_PLUS, LEX_PLEQ, /*42 */ LEX_MINUS, LEX_MINEQ, LEX_PIPE, LEX_DPIPE, LEX_REM, LEX_REMEQ, LEX_SLASH, LEX_SLEQ, LEX_TIMES, LEX_TIMESEQ, LEX_SLASHTIMES, LEX_TIMESLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ, LEX_INC, LEX_DEC, LEX_POINT, LEX_LBRACK, LEX_RBRACK, LEX_STEQ, LEX_STNEQ, LEX_BEGIN, LEX_END, LEX_NOT, LEX_DSLASH,
+    LEX_CONSTR, //69
     LEX_ID, 
     POLIZ_LABEL,
     POLIZ_ADDRESS, 
@@ -202,7 +202,7 @@ public:
 };
 
 const char * 
-Scanner::TW [] = { "", "Boolean", "do", "else", "if", "false", "Number", "String", "true", "var", "while", "break", "case", "continue", "goto", "for",    "function",    "in", "instanceof", "NaN", "null",    "return", "typeof", "void", "with", "Object", "undefined", NULL};
+Scanner::TW [] = { "", "Boolean", "do", "else", "if", "false", "Number", "String", "true", "var", "while", "break", "case", "continue", "goto", "for",    "function",    "in", "instanceof", "NaN", "null",    "return", "typeof", "void", "with", "Object", "undefined", "write", "getenv", NULL};
 
 const  char * 
 Scanner::TD [] = { "@", "&", "&&", ";", ",", ":", "=", "(", ")", "==", "<", ">", "+", "+=", "-", "-=", "|", "||", "%", "%=", "/", "/=", "*", "*=", "/*", "*/", "<=", "!=", ">=", "++", "--", ".", "[", "]", "===", "!==", "{", "}", "!", "//", NULL};
@@ -458,35 +458,35 @@ Lex Scanner::get_lex ()
 
 ostream & operator<< ( ostream &s, Lex l ) {
     string t;
-    if ( l.t_lex < 27 )
+    if ( l.t_lex < 29 )
         t = Scanner::TW[l.t_lex];
-    else if (l.t_lex >= 27 && l.t_lex <= 66)
-    t = Scanner::TD[l.t_lex-27];
+    else if (l.t_lex >= 29 && l.t_lex <= 68)
+    t = Scanner::TD[l.t_lex-29];
     else if (l.t_lex == 6)
     t = "NUMBER";
-    else if (l.t_lex == 67)
+    else if (l.t_lex == 69)
     {      
         t = "STRING CONST";
         s << '(' << t << ',' << l.s_lex << ");" << endl;
         return s;
     }
-    else if (l.t_lex == 68)
+    else if (l.t_lex == 70)
         t = TID[l.v_lex].get_name();
-    else if (l.t_lex == 69)
-        t = "Label";
-    else if(l.t_lex == 70)
-        t = "Addr";
     else if (l.t_lex == 71)
-        t = "!";
-    else if (l.t_lex == 72) 
-        t = "!F";
+        t = "Label";
+    else if(l.t_lex == 72)
+        t = "Addr";
     else if (l.t_lex == 73)
-        t = "+#";
-    else if (l.t_lex == 74)
-        t = "#+";
+        t = "!";
+    else if (l.t_lex == 74) 
+        t = "!F";
     else if (l.t_lex == 75)
-        t = "-#";
+        t = "+#";
     else if (l.t_lex == 76)
+        t = "#+";
+    else if (l.t_lex == 77)
+        t = "-#";
+    else if (l.t_lex == 78)
         t = "#-";
     else
         throw l;
@@ -521,6 +521,7 @@ class Parser
     void E1();
     void T();
     void F();
+    void WR();
     void FOR_PARAMETERS();
     void dec(type_of_lex type, int i);
     void check_id();
@@ -788,6 +789,11 @@ void Parser::S()
     {
         return;
     }
+    else if (c_type == POLIZ_WRITE || c_type == POLIZ_GETENV)
+    {
+        WR();
+        gl();
+    }
     else if (c_type == LEX_END)
     {
         return;
@@ -800,6 +806,38 @@ void Parser::S()
     S();
 }
 
+void Parser::WR()
+{
+    type_of_lex new_type = c_type;
+    gl();
+    if (c_type != LEX_LPAREN)
+    {
+        throw curr_lex;
+    }
+    else
+    {
+        gl();
+        if (c_type == LEX_ID)
+        {
+            check_id();
+            poliz.push_back(Lex(POLIZ_ADDRESS, c_val));
+            gl();
+        }
+        else
+        {
+            E();
+        }
+        if (c_type != LEX_RPAREN)
+        {
+            throw curr_lex;
+        }
+        else
+        {
+            gl();
+            poliz.push_back(Lex(new_type));
+        }
+    }
+}
 
 void Parser::B()
 {
@@ -907,17 +945,17 @@ void Parser::E()
     {
         gl();
         int l_v_index = c_val;
-		if (c_type == LEX_ID)
-		{
-			check_id();
-			poliz.push_back(Lex(POLIZ_ADDRESS, l_v_index));
-		}
-		else
-		{
-			throw curr_lex;
-		}
-		poliz.push_back(Lex(POLIZ_LDEC));
-		gl();
+        if (c_type == LEX_ID)
+        {
+            check_id();
+            poliz.push_back(Lex(POLIZ_ADDRESS, l_v_index));
+        }
+        else
+        {
+            throw curr_lex;
+        }
+        poliz.push_back(Lex(POLIZ_LDEC));
+        gl();
     }
     else
     {
@@ -926,27 +964,27 @@ void Parser::E()
         {
             type_of_lex op = c_type;
             st_lex.push(c_type);
-			if (!(c_type == LEX_DEC || c_type ==  LEX_INC))
-			{
-				gl();
-				E1();
-				poliz.push_back (Lex (op) );
-			}
-			else 
-			{
-				if (c_type == LEX_DEC)
-				{
-					poliz[poliz.size() - 1].put_type(POLIZ_ADDRESS);
-					gl();
-					poliz.push_back (Lex (POLIZ_RDEC) );
-				}
-				if (c_type == LEX_INC)
-				{
-					poliz[poliz.size() - 1].put_type(POLIZ_ADDRESS);
-					gl();
-					poliz.push_back (Lex (POLIZ_RINC) );
-				}
-			}
+            if (!(c_type == LEX_DEC || c_type ==  LEX_INC))
+            {
+                gl();
+                E1();
+                poliz.push_back (Lex (op) );
+            }
+            else 
+            {
+                if (c_type == LEX_DEC)
+                {
+                    poliz[poliz.size() - 1].put_type(POLIZ_ADDRESS);
+                    gl();
+                    poliz.push_back (Lex (POLIZ_RDEC) );
+                }
+                if (c_type == LEX_INC)
+                {
+                    poliz[poliz.size() - 1].put_type(POLIZ_ADDRESS);
+                    gl();
+                    poliz.push_back (Lex (POLIZ_RINC) );
+                }
+            }
         }
     }
 }
@@ -1109,8 +1147,8 @@ void Executer::execute ( vector<Lex> & poliz ) {
     int i, index = 0, size = poliz.size(), j;
     Lex one, two;
     stack <int> inc_st;
-	stack <int> dec_st;
-	int inc_dec_tmp;
+    stack <int> dec_st;
+    int inc_dec_tmp;
     while ( index < size ) 
     {
         pc_el = poliz [ index ];
@@ -1302,17 +1340,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                 }
                 else throw "PLEQ error 2";
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp = inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp = dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp = inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp = dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
  
             case LEX_TIMES:
@@ -1386,17 +1424,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                 }
                 else throw "TIMEQ error 2";
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp = inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp=dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp = inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp=dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
  
             case LEX_MINUS:
@@ -1470,17 +1508,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                 }
                 else throw "MINEQ error 2";
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp=inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp=dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp=inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp=dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
  
             case LEX_SLASH:
@@ -1560,17 +1598,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                 }
                 else throw "SLEQ error 2";
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp = inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp = dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp = inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp = dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
                 
             case LEX_REM:
@@ -1650,17 +1688,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                 }
                 else throw "REMEQ error 2";
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp = inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp = dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp = inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp = dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
  
             case LEX_EQ:
@@ -1923,17 +1961,17 @@ void Executer::execute ( vector<Lex> & poliz ) {
                     TID[j].put_type(LEX_FALSE);
                 TID[j].put_assign(); 
                 while (!inc_st.empty())
-				{
-					inc_dec_tmp = inc_st.top();
-					inc_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
-				}
-				while (!dec_st.empty())
-				{
-					inc_dec_tmp = dec_st.top();
-					dec_st.pop();
-					TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
-				}
+                {
+                    inc_dec_tmp = inc_st.top();
+                    inc_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() + 1);
+                }
+                while (!dec_st.empty())
+                {
+                    inc_dec_tmp = dec_st.top();
+                    dec_st.pop();
+                    TID[inc_dec_tmp].put_value(TID[inc_dec_tmp].get_value() - 1);
+                }
                 break;
                 
             case POLIZ_LINC:
@@ -1955,6 +1993,7 @@ void Executer::execute ( vector<Lex> & poliz ) {
                         throw "LINC error 2";
                     }
                 }
+                else throw "LINC error 3";
                 break;
             
             case POLIZ_RINC:
@@ -1977,6 +2016,7 @@ void Executer::execute ( vector<Lex> & poliz ) {
                         throw "RINC error 2";
                     }
                 }
+                else throw "RINC error 3";
                 break;
             
             case POLIZ_LDEC:
@@ -1996,6 +2036,7 @@ void Executer::execute ( vector<Lex> & poliz ) {
                         throw "LDEC error 2";
                     }
                 }
+                else throw "LDEC error 3";
                 break;
             
             case POLIZ_RDEC:
@@ -2018,6 +2059,43 @@ void Executer::execute ( vector<Lex> & poliz ) {
                         throw "RDEC error 2";
                     }
                 }
+                else throw "RDEC error 3";
+                break;
+                
+            case POLIZ_WRITE:
+                from_st(args, one);
+                if (one.get_type() == POLIZ_ADDRESS)
+                    if (TID[one.get_value()].get_string() != "")
+                        cout << TID[one.get_value()].get_string() << endl;
+                    else
+                        cout << TID[one.get_value()].get_value() << endl;
+                else if (one.get_type() == LEX_CONSTR)
+                    cout << one.get_string() << endl;
+                else 
+                    cout << one.get_value() << endl;
+                break;
+                
+            case POLIZ_GETENV:
+                from_st(args,one);
+                if (one.get_type() == POLIZ_ADDRESS)
+                    if (TID[one.get_value()].get_string() != "")
+                        cout << getenv(TID[one.get_value()].get_string().c_str()) << endl;
+                    else
+                        throw "Impossible to apply";
+                else if (one.get_type() == LEX_CONSTR)
+                {
+                    try
+                    {
+                        string str = getenv(one.get_string().c_str());
+                        cout << str << endl;
+                    }
+                    catch(...)
+                    {
+                        throw "Environment error";
+                    }
+                }
+                else 
+                    throw "Impossible to apply";
                 break;
  
             default:
@@ -2025,6 +2103,12 @@ void Executer::execute ( vector<Lex> & poliz ) {
         }//end of switch
         ++index;
     };//end of while
+    unsigned int s = 0;
+    while (s < TID.size())
+    {
+        cout << TID[s].get_name() << '_' << TID[s].get_value() << endl;
+        s++;
+    }
     cout << "Finish of executing!!!" << endl;
 }
  

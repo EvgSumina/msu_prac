@@ -7,3 +7,6 @@ while ( a < 3)
     break;
 }
 
+write(a);
+getenv("QUERRY_STRING")
+
