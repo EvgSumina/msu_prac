@@ -2103,12 +2103,12 @@ void Executer::execute ( vector<Lex> & poliz ) {
         }//end of switch
         ++index;
     };//end of while
-    unsigned int s = 0;
+    /*unsigned int s = 0;
     while (s < TID.size())
     {
         cout << TID[s].get_name() << '_' << TID[s].get_value() << endl;
         s++;
-    }
+    }*/
     cout << "Finish of executing!!!" << endl;
 }
  

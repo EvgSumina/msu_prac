@@ -8,5 +8,5 @@ while ( a < 3)
 }
 
 write(a);
-getenv("QUERRY_STRING")
+getenv("QUERY_STRING")
 

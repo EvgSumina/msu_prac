@@ -4,8 +4,6 @@
 int main () 
 {
     printf("Content-type: text/html\n\n");
-    printf ( "<html><body>" ); 
-    printf ( "Приветствую! Вы ввели аргументы:’%s’", getenv ( "QUERY_STRING" )); 
-    printf ( "</body></html>" ); 
+    printf ( "Hello! Your arguments are: %s", getenv ( "QUERY_STRING" )); 
     return 0; 
 }

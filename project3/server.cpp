@@ -158,7 +158,7 @@ class Client: public Address {
     char* get_all_env(char* str)
     {
         char* all_env = new char[BUFLEN];
-        int i = strlen(buf) - 1, k = 0;
+        int i = strlen(str) - 1, k = 0;
         while(str[i] != '?')
         {
             if(str[i--] == 0)
@@ -167,7 +167,7 @@ class Client: public Address {
                 return all_env;
             }
         }
-        for(unsigned int j = i + 1; j < strlen(str); j++) all_env[k++] = str[j];
+        for(size_t j = i+1; j < strlen(str); j++) all_env[k++] = str[j];
         return all_env;
     }
     
@@ -175,10 +175,27 @@ class Client: public Address {
     {
         char* first = new char[BUFLEN];
         strcpy(first, str);
-        int i = 0;
-        while(first[i++] != '?');
-        first[i-1] = 0;
+        int flag = 0;
+        unsigned int i = 0;
+        while(i < strlen(str) && !flag)
+        {
+            if (first[i++] == '?')
+                flag = 1;
+        };
+        if (flag) i--;
+        first[i] = 0;
         return first;
+    }
+    
+    char* get_name(char* path) const
+    {
+        char* name = new char[BUFLEN];
+        unsigned int i = 0, k = 0;
+        while(path[i++] != '/');
+        while (i < strlen(path)) name[k++] = path[i++];
+        name[k] = '\0';
+        name = get_first(name);
+        return name;
     }
  
 public:
@@ -239,12 +256,9 @@ public:
             if (is_cgi(path))
             {
                 cout << "It is cgi" << endl;
-                chdir("./cgi-bin");
                 int status;
                 int pid;
                 string name = to_string(getpid()) + ".txt";
-                int fd = open(name.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
-                dup2(fd, 1);
                 if((pid = fork()) < 0)
                 {
                     cerr << "Can't make process" << endl;
@@ -252,13 +266,16 @@ public:
                 }
                 else if (pid == 0)
                 {
-                    //chdir("./cgi-bin");
+                    chdir("./cgi-bin");
+                    int fd = open(name.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0644);
                     string processName = "./";
-                    processName += get_first(path);
+                    processName += get_name(path);
+                    cout << "first: " << processName << endl;
                     char *argv[] = { (char*)processName.c_str(), NULL };
                     string QUERY_STRING = "QUERY_STRING=";
                     QUERY_STRING += get_all_env(path);
                     char *env[] = { (char*)QUERY_STRING.c_str(), NULL};
+                    dup2(fd, 1);
                     execve(processName.c_str(), argv, env);
                     perror("execve() ");
                     delete [] argv[0];
@@ -271,6 +288,7 @@ public:
                 {
                     if(WEXITSTATUS(status) == 0)
                     {
+                        name = "cgi-bin/" + name;
                         Send(name.c_str(), "HTTP/1.0 200 MyServer");
                     }
                     else
@@ -306,6 +324,7 @@ public:
     
     void Send(const char* file, const char* header)
     {
+        cout << "Send: " << file << endl;
         int fileLength;
         string strFileLength;
         fd = open(file, O_RDONLY);
